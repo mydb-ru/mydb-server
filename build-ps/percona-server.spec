@@ -66,8 +66,8 @@
 %{!?with_debuginfo:              %global nodebuginfo 0}
 %{!?product_suffix:              %global product_suffix -80}
 %{!?feature_set:                 %global feature_set community}
-%{!?compilation_comment_release: %global compilation_comment_release Percona Server (GPL), Release %{percona_server_version}, Revision %{revision}}
-%{!?compilation_comment_debug:   %global compilation_comment_debug Percona Server - Debug (GPL), Release %{percona_server_version}, Revision %{revision}}
+%{!?compilation_comment_release: %global compilation_comment_release MyDB Server (GPL), Release %{percona_server_version}, Revision %{revision}}
+%{!?compilation_comment_debug:   %global compilation_comment_debug MyDB Server - Debug (GPL), Release %{percona_server_version}, Revision %{revision}}
 %{!?src_base:                    %global src_base percona-server}
 
 # Setup cmake flags for TokuDB
