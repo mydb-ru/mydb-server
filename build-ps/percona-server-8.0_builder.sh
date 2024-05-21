@@ -190,8 +190,8 @@ get_sources(){
     echo "REVISION=${REVISION}" >> ../percona-server-8.0.properties
     BRANCH_NAME="${BRANCH}"
     echo "BRANCH_NAME=${BRANCH_NAME}" >> ../percona-server-8.0.properties
-    export PRODUCT=Percona-Server-${MYSQL_VERSION_MAJOR}.${MYSQL_VERSION_MINOR}
-    echo "PRODUCT=Percona-Server-${MYSQL_VERSION_MAJOR}.${MYSQL_VERSION_MINOR}" >> ../percona-server-8.0.properties
+    export PRODUCT=mydb-${MYSQL_VERSION_MAJOR}.${MYSQL_VERSION_MINOR}
+    echo "PRODUCT=mydb-${MYSQL_VERSION_MAJOR}.${MYSQL_VERSION_MINOR}" >> ../percona-server-8.0.properties
     export PRODUCT_FULL=${PRODUCT}.${MYSQL_VERSION_PATCH}${MYSQL_VERSION_EXTRA}
     echo "PRODUCT_FULL=${PRODUCT}.${MYSQL_VERSION_PATCH}${MYSQL_VERSION_EXTRA}" >> ../percona-server-8.0.properties
     echo "BUILD_NUMBER=${BUILD_NUMBER}" >> ../percona-server-8.0.properties
