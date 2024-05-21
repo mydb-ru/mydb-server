@@ -17,12 +17,8 @@
 
 DISABLE_MISSING_PROFILE_WARNING()
 
-IF(WITH_PERCONA_TELEMETRY)
-  message(STATUS "Building Percona Telemetry component")
-ELSE()
-  message(STATUS "Not building Percona Telemetry component")
-  RETURN()
-ENDIF()
+message(STATUS "Not building Percona Telemetry component")
+RETURN()
 
 MYSQL_ADD_COMPONENT(percona_telemetry
   percona_telemetry_component.cc

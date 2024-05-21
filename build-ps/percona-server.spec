@@ -150,7 +150,6 @@ Vendor:         %{percona_server_vendor}
 Source5:        mysql_config.sh
 Source90:       filter-provides.sh
 Source91:       filter-requires.sh
-Source999:      call-home.sh
 Patch0:         mysql-5.7-sharedlib-rename.patch
 BuildRequires:  cmake >= 2.8.2
 BuildRequires:  gcc
@@ -557,7 +556,6 @@ mkdir debug
            -DWITH_ZSTD=bundled \
            -DWITH_EDITLINE=bundled \
            -DWITH_LIBEVENT=bundled \
-	   -DWITH_PERCONA_TELEMETRY=ON \
 %if 0%{?add_fido_plugins}
            -DWITH_FIDO=bundled \
 %else
@@ -613,7 +611,6 @@ mkdir release
            -DWITH_EDITLINE=bundled \
            -DWITH_LIBEVENT=bundled \
            -DWITH_ZSTD=bundled \
-	   -DWITH_PERCONA_TELEMETRY=ON \
 %if 0%{?add_fido_plugins}
            -DWITH_FIDO=bundled \
 %else
@@ -785,12 +782,6 @@ if [ -d /etc/percona-server.conf.d ]; then
         echo "!includedir /etc/percona-server.conf.d/" >> /etc/my.cnf
     fi
 fi
-
-cp %SOURCE999 /tmp/ 2>/dev/null ||
-bash /tmp/call-home.sh -f "PRODUCT_FAMILY_PS" -v %{mysql_version}-%{percona_server_version}-%{rpm_release} -d "PACKAGE" &>/dev/null || :
-chgrp percona-telemetry /usr/local/percona/telemetry_uuid &>/dev/null || :
-chmod 664 /usr/local/percona/telemetry_uuid &>/dev/null || :
-rm -f /tmp/call-home.sh
 
 echo "Percona Server is distributed with several useful UDF (User Defined Function) from Percona Toolkit."
 echo "Run the following command to install these functions (fnv_64, fnv1a_64, murmur_hash):"
@@ -1095,7 +1086,6 @@ fi
 %attr(755, root, root) %{_libdir}/mysql/plugin/component_audit_api_message_emit.so
 %attr(755, root, root) %{_libdir}/mysql/plugin/component_query_attributes.so
 %if 0%{?rhel} >= 8
-%attr(755, root, root) %{_libdir}/mysql/plugin/component_percona_telemetry.so
 %endif
 %attr(755, root, root) %{_libdir}/mysql/plugin/connection_control.so
 %attr(755, root, root) %{_libdir}/mysql/plugin/ddl_rewriter.so
@@ -1152,7 +1142,6 @@ fi
 %attr(755, root, root) %{_libdir}/mysql/plugin/debug/component_audit_api_message_emit.so
 %attr(755, root, root) %{_libdir}/mysql/plugin/debug/component_query_attributes.so
 %if 0%{?rhel} >= 8
-%attr(755, root, root) %{_libdir}/mysql/plugin/debug/component_percona_telemetry.so
 %endif
 %attr(755, root, root) %{_libdir}/mysql/plugin/debug/connection_control.so
 %attr(755, root, root) %{_libdir}/mysql/plugin/debug/ddl_rewriter.so
