@@ -117,7 +117,7 @@ get_sources(){
         return 0
     fi
 
-    git clone --depth 1 --branch $BRANCH "$REPO"
+    git clone --depth 1 --branch $BRANCH "$REPO" percona-server
     retval=$?
     if [ $retval != 0 ]
     then
