@@ -34,6 +34,7 @@ INCLUDE(${CMAKE_SOURCE_DIR}/storage/innobase/innodb.cmake)
 
 SET(TESTS
   #example
+  fts0vlc
   ha_innodb
   mem0mem
   ut0crc32
