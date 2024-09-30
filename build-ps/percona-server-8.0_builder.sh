@@ -786,6 +786,7 @@ build_source_deb(){
     fi
     rm -rf percona-server*
     get_tar "source_tarball"
+    cd "$WORKDIR"
     rm -f *.dsc *.orig.tar.gz *.debian.tar.gz *.changes
     #
 
@@ -804,7 +805,7 @@ build_source_deb(){
     ls -la
     cd percona-server-${VERSION}-${RELEASE}
     cp -ap build-ps/debian/ .
-    dch -D unstable --force-distribution -v "${VERSION}-${RELEASE}-${DEB_RELEASE}" "Update to new upstream release Percona Server ${VERSION}-${RELEASE}-1"
+    dch -m -D unstable --force-distribution -v "${VERSION}-${RELEASE}-${DEB_RELEASE}" "Update to new upstream release Percona Server ${VERSION}-${RELEASE}-1"
     copyright-update -d debian/copyright
     dpkg-buildpackage -S
 
