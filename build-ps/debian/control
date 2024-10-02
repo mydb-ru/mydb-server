@@ -1,9 +1,7 @@
 Source: percona-server
 Section: database
 Priority: extra
-Maintainer: Percona Server Development Team <mysql-dev@percona.com>
-Uploaders: George Lorch <george.lorch@percona.com>,
-           Tomislav Plavcic <tomislav.plavcic@percona.com>
+Maintainer: MyDB Server Development Team <mysql-dev@mydb.ru>
 Build-Depends: bison,
                cmake,
                debhelper (>= 9.0.0),
@@ -25,97 +23,96 @@ Build-Depends: bison,
                libcurl4-openssl-dev,
                libldap2-dev
 Standards-Version: 3.9.4
-Homepage: http://www.percona.com/software/percona-server/
-Vcs-Git: git://github.com/percona/percona-server.git -b 8.0
+Homepage: http://www.mydb.ru
 
-Package: percona-server-rocksdb
+Package: mydb-rocksdb
 Section: database
 Architecture: any
-Depends: percona-server-server (= ${binary:Version}), ${misc:Depends}
-Breaks: percona-server-rocksdb-5.7
-Replaces: percona-server-rocksdb-5.7
-Description: MyRocks storage engine plugin for Percona Server
+Depends: mydb-server (= ${binary:Version}), ${misc:Depends}
+Breaks: mydb-rocksdb-5.7
+Replaces: mydb-rocksdb-5.7
+Description: MyRocks storage engine plugin for MyDB
  .
- MyRocks is a storage engine for Percona Server which incorporates RocksDB
+ MyRocks is a storage engine for MyDB which incorporates RocksDB
  library optimized for fast storage and space efficiency.
  .
  This package includes the MyRocks/RocksDB plugin library.
 
-Package: libperconaserverclient22
+Package: libmydbclient22
 Architecture: any
 Section: libs
 Pre-Depends: ${misc:Pre-Depends}
 Multi-Arch: same
-Depends: percona-server-common (= ${binary:Version}), ${misc:Depends}, ${shlibs:Depends}
-Replaces: libpercona-server-client16, libperconaserverclient18, libperconaserverclient18.1, libperconaserverclient20, libperconaserverclient21
-Description: Percona Server database client library
- Percona Server is a fast, stable and true multi-user, 
+Depends: mydb-common (= ${binary:Version}), ${misc:Depends}, ${shlibs:Depends}
+Replaces: libmydb-client16, libmydbclient18, libmydbclient18.1, libmydbclient20, libmydbclient21
+Description: MyDB client library
+ MyDB is a fast, stable and true multi-user, 
  multi-threaded SQL database server. SQL (Structured Query Language) 
  is the most popular database query language in the world. The main 
- goals of Percona Server are speed, robustness and ease of use.
+ goals of MyDB are speed, robustness and ease of use.
  .
  This package includes the client library.
 
-Package: libperconaserverclient22-dev
+Package: libmydbclient22-dev
 Architecture: any
 Section: libdevel
-Depends: libperconaserverclient22 (= ${binary:Version}),
+Depends: libmydbclient22 (= ${binary:Version}),
          zlib1g-dev, ${misc:Depends}
-Breaks: libperconaserverclient21-dev,
-	libperconaserverclient20-dev,
-        libperconaserverclient18.1-dev,
-        libperconaserverclient18-dev,
-        libperconaserverclient16-dev,
-        libperconaserverclient15-dev,
-        libperconaserverclient14-dev,
-        libperconaserverclient12-dev,
-        libperconaserverclient10-dev,
+Breaks: libmydbclient21-dev,
+	libmydbclient20-dev,
+        libmydbclient18.1-dev,
+        libmydbclient18-dev,
+        libmydbclient16-dev,
+        libmydbclient15-dev,
+        libmydbclient14-dev,
+        libmydbclient12-dev,
+        libmydbclient10-dev,
         libmysqlclient-dev,
         libmysqlclient18-dev,
         libmysqlclient20-dev,
         libmysqlclient21-dev,
         libmariadbclient-dev
-Replaces: libperconaserverclient21-dev,
-	  libperconaserverclient20-dev,
-          libperconaserverclient18.1-dev,
-          libperconaserverclient18-dev,
-          libperconaserverclient16-dev,
-          libperconaserverclient15-dev,
-          libperconaserverclient14-dev,
-          libperconaserverclient12-dev,
-          libperconaserverclient10-dev,
+Replaces: libmydbclient21-dev,
+	  libmydbclient20-dev,
+          libmydbclient18.1-dev,
+          libmydbclient18-dev,
+          libmydbclient16-dev,
+          libmydbclient15-dev,
+          libmydbclient14-dev,
+          libmydbclient12-dev,
+          libmydbclient10-dev,
           libpercona-xtradb-client-dev,
           libmariadbclient-dev
 Provides: libmysqlclient-dev
-Description: Percona Server database development files
- Percona Server is a fast, stable and true multi-user, multi-threaded SQL 
- database server. SQL (Structured Query Language) is the most popular 
- database query language in the world. The main goals of Percona Server are 
- speed, robustness and ease of use.
+Description: MyDB development files
+ MyDB is a fast, stable and true multi-user, 
+ multi-threaded SQL database server. SQL (Structured Query Language) 
+ is the most popular database query language in the world. The main 
+ goals of MyDB are speed, robustness and ease of use.
  .
  This package includes development libraries and header files.
 
-Package: percona-server-common
+Package: mydb-common
 Section: database
 Architecture: any
 Pre-depends: debconf (>= 0.2.17), debsums, ${misc:Pre-Depends}
 Multi-Arch: foreign
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Breaks: percona-server-common-5.7
+Breaks: mydb-common-5.7
 Provides: mysql-common
-Replaces: mysql-common, percona-server-common-5.7
-Description: Percona Server database common files (e.g. /etc/mysql/my.cnf)
- Percona Server is a fast, stable and true multi-user, multi-threaded SQL
- database server. SQL (Structured Query Language) is the most popular database
- query language in the world. The main goals of Percona Server are speed, 
- robustness and ease of use.
+Replaces: mysql-common, mydb-common-5.7
+Description: MyDB common files (e.g. /etc/mysql/my.cnf)
+ MyDB is a fast, stable and true multi-user, 
+ multi-threaded SQL database server. SQL (Structured Query Language) 
+ is the most popular database query language in the world. The main 
+ goals of MyDB are speed, robustness and ease of use.
  .
  This package includes files needed by all versions of the client library
  (e.g. /etc/mysql/my.cnf).
 
-Package: percona-server-client
+Package: mydb-client
 Architecture: any
-Depends: percona-server-common (= ${binary:Version}),
+Depends: mydb-common (= ${binary:Version}),
          ${shlibs:Depends}, ${misc:Depends}
 Provides: mysql-client,
           virtual-mysql-client, virtual-mysql-client-core,
@@ -133,7 +130,7 @@ Breaks: mysql-client-5.0,
         percona-server-client-5.1,
         percona-server-client-5.5,
         percona-server-client-5.6,
-        percona-server-client-5.7,
+        mydb-client-5.7,
         mariadb-client,
         mariadb-client-core-5.5,
         mariadb-client-5.5,
@@ -154,28 +151,27 @@ Replaces: mysql-client-5.0,
            percona-server-client-5.1,
            percona-server-client-5.5,
            percona-server-client-5.6,
-           percona-server-client-5.7,
+           mydb-client-5.7,
            mariadb-client,
            mariadb-client-core-5.5,
            mariadb-client-5.5,
            virtual-mysql-client,
            virtual-mysql-client-core
-Conflicts: percona-server-client (< 8.0.12)
-Description: Percona Server database client binaries
- Percona Server is a fast, stable and true multi-user, multi-threaded SQL
- database server. SQL (Structured Query Language) is the most popular database
- query language in the world. The main goals of Percona Server are speed,
- robustness and ease of use.
+Conflicts: mydb-client (< 8.0.12)
+Description: MyDB client binaries
+ MyDB is a fast, stable and true multi-user, 
+ multi-threaded SQL database server. SQL (Structured Query Language) 
+ is the most popular database query language in the world. The main 
+ goals of MyDB are speed, robustness and ease of use.
  .
  This package includes the client binaries.
 
-Package: percona-server-server
+Package: mydb-server
 Architecture: any
 Pre-Depends: adduser,
              debconf (>= 0.2.17)
-Depends: percona-server-common (= ${binary:Version}),
-         percona-server-client (= ${binary:Version}),
-	 percona-telemetry-agent,
+Depends: mydb-common (= ${binary:Version}),
+         mydb-client (= ${binary:Version}),
          ${shlibs:Depends}, ${misc:Depends},
          psmisc,
          curl,
@@ -197,7 +193,7 @@ Breaks: mysql-server-5.0,
         percona-server-server-5.1,
         percona-server-server-5.5,
         percona-server-server-5.6,
-        percona-server-server-5.7,
+        mydb-server-5.7,
         mariadb-server,
         mariadb-server-core-5.5,
         mariadb-server-5.5,
@@ -219,60 +215,59 @@ Replaces: mysql-server-5.0,
           percona-server-server-5.1,
           percona-server-server-5.5,
           percona-server-server-5.6,
-          percona-server-server-5.7,
+          mydb-server-5.7,
           mariadb-server,
           mariadb-server-core-5.5,
           mariadb-server-5.5,
           virtual-mysql-server,
           virtual-mysql-server-core
-Conflicts: percona-server-server (< 8.0.12),
-           percona-server-tokudb
-Description: Percona Server database server binaries
- Percona Server is a fast, stable and true multi-user, multi-threaded SQL
- database server. SQL (Structured Query Language) is the most popular database
- query language in the world. The main goals of Percona Server are speed,
- robustness and ease of use.
+Conflicts: mydb-server (< 8.0.12)
+Description: MyDB server binaries
+ MyDB is a fast, stable and true multi-user, 
+ multi-threaded SQL database server. SQL (Structured Query Language) 
+ is the most popular database query language in the world. The main 
+ goals of MyDB are speed, robustness and ease of use.
  .
  This package includes the server binaries.
 
-Package: percona-server-test
+Package: mydb-test
 Architecture: any
-Depends: percona-server-client (= ${binary:Version}),
-         percona-server-server (= ${binary:Version}),
-         libperconaserverclient22-dev (= ${binary:Version}),
+Depends: mydb-client (= ${binary:Version}),
+         mydb-server (= ${binary:Version}),
+         libmydbclient22-dev (= ${binary:Version}),
          perl, ${misc:Depends}, ${shlibs:Depends}
-Replaces: percona-server-server, percona-server-client
-Description: Percona Server database test suite
- Percona Server is a fast, stable and true multi-user, multi-threaded SQL
- database server. SQL (Structured Query Language) is the most popular database
- query language in the world. The main goals of Percona Server are speed,
- robustness and ease of use.
+Replaces: mydb-server, mydb-client
+Description: MyDB database test suite
+ MyDB is a fast, stable and true multi-user, 
+ multi-threaded SQL database server. SQL (Structured Query Language) 
+ is the most popular database query language in the world. The main 
+ goals of MyDB are speed, robustness and ease of use.
  .
- This package includes the Percona Server test framework that provides 
- a means for verifying that Percona Server and its client programs 
+ This package includes the MyDB test framework that provides 
+ a means for verifying that MyDB and its client programs 
  operate according to expectations
 
-Package: percona-server-source
+Package: mydb-source
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}
-Description: Percona Server 8.0 source
- This package includes the source code to Percona Server as configured before
+Description: MyDB 8.4 source
+ This package includes the source code to MyDB as configured before
  building.
 
-Package: percona-server-dbg
+Package: mydb-dbg
 Architecture: any
 Section: debug
-Depends: percona-server-server (= ${binary:Version}), ${misc:Depends}
-Description: Debugging package for Percona Server
- Percona Server is a fast, stable and true multi-user, multi-threaded SQL
- database server. SQL (Structured Query Language) is the most popular database
- query language in the world. The main goals of Percona Server are speed,
- robustness and ease of use.
+Depends: mydb-server (= ${binary:Version}), ${misc:Depends}
+Description: Debugging package for MyDB
+ MyDB is a fast, stable and true multi-user, 
+ multi-threaded SQL database server. SQL (Structured Query Language) 
+ is the most popular database query language in the world. The main 
+ goals of MyDB are speed, robustness and ease of use.
  .
- This package contains the debugging symbols for the Percona Server binaries.
+ This package contains the debugging symbols for the MyDB binaries.
 
-Package: percona-mysql-router
+Package: mydb-router
 Architecture: any
-Description: Percona MySQL Router
+Description: MyDB Router
 Depends: ${shlibs:Depends}, ${misc:Depends}
 

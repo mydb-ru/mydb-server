@@ -207,7 +207,7 @@ take_upstart_job_backup
 
 #Some postinstall info about UDF
 #
-echo -e "\n\n * Percona Server is distributed with several useful UDF (User Defined Function) from Percona Toolkit."
+echo -e "\n\n * MyDB is distributed with several useful UDF (User Defined Function) from Percona Toolkit."
 echo -e " * Run the following command to install these functions (fnv_64, fnv1a_64, murmur_hash):\n"
 echo -e "\tmysql -e \"INSTALL COMPONENT 'file://component_percona_udf'\""
 echo -e "\n * See http://www.percona.com/doc/percona-server/8.0/management/udf_percona_toolkit.html for more details\n\n"

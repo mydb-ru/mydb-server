@@ -201,7 +201,7 @@ override_dh_auto_install:
 	install -d $(TMP)/etc/apparmor.d/local
 
 override_dh_strip:
-	dh_strip --dbg-package=percona-server-dbg
+	dh_strip --dbg-package=mydb-dbg
 	dh_strip -Xlibprotobuf-lite
 	dh_strip -Xlibabsl_bad_any_cast_impl
 	dh_strip -Xlibabsl_bad_optional_access
@@ -290,7 +290,7 @@ override_dh_strip:
 	dh_strip -Xlibabsl_time_zone
 
 override_dh_shlibdeps:
-	dh_shlibdeps -Lpercona-server-server -l/usr/lib/mysql/private --dpkg-shlibdeps-params=--ignore-missing-info
+	dh_shlibdeps -Lmydb-server -l/usr/lib/mysql/private --dpkg-shlibdeps-params=--ignore-missing-info
 
 override_dh_installinit:
 	@echo "RULES.$@"

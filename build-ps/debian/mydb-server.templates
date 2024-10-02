@@ -25,7 +25,7 @@ Description: Remove data directories ?
 
 Template: percona-server-server/data-dir
 Type: note
-Description: Data directory found when no Percona Server package is installed
+Description: Data directory found when no MyDB package is installed
  A data directory '/var/lib/mysql' is present on this system when no MySQL server 
  package is currently installed on the system. The directory may be under control of
  server package received from third-party vendors. It may also be an unclaimed data

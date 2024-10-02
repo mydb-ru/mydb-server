@@ -1,6 +1,6 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: Percona Server 8.0
-Upstream-Contact: Percona MySQL Development Team <mysqldev@percona.com>
+Upstream-Name: MyDB Server 8.4
+Upstream-Contact: Percona MySQL Development Team <mysql-dev@mydb.ru>
 Source: http://www.percona.com/downloads/Percona-Server-8.0/
 
 Copyright: (C) 2020-2023 Oracle and/or its affiliates. All rights reserved.

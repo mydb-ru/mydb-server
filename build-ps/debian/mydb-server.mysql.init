@@ -127,7 +127,7 @@ case "$1" in
   'start')
 	if [ "$(get_running)" -eq 1 ];
 	then
-		log_action_msg "Percona Server is already started"
+		log_action_msg "MyDB is already started"
 	else
 		MYSQLRUN=/var/run/mysqld
 		MYSQLDATA=$(get_mysql_option mysqld datadir "/var/lib/mysql")
@@ -192,9 +192,9 @@ case "$1" in
                 retval=$?
 		if [ "$retval" -eq 0 ];
 		then
-			log_action_msg "Percona Server ${VERSION} is started"
+			log_action_msg "MyDB ${VERSION} is started"
 		else
-			log_action_msg "Percona Server ${VERSION} did not start. Please check logs for more details."
+			log_action_msg "MyDB ${VERSION} did not start. Please check logs for more details."
                         exit $retval
 		fi
 	fi
@@ -208,29 +208,29 @@ case "$1" in
                 retval=$?
 		if [ "$retval" -eq 0 ];
 		then
-			log_action_msg "Percona Server ${VERSION} is stopped"
+			log_action_msg "MyDB ${VERSION} is stopped"
 		else
-			log_action_msg "Attempt to shutdown Percona Server ${VERSION} timed out"
+			log_action_msg "Attempt to shutdown MyDB ${VERSION} timed out"
                         exit $retval
 		fi
 	else
-		log_action_msg "Percona Server ${VERSION} is already stopped"
+		log_action_msg "MyDB ${VERSION} is already stopped"
 	fi
 	;;
 
   'restart'|'reload'|'force-reload')
-	log_action_msg "Stopping Percona Server ${VERSION}"
+	log_action_msg "Stopping MyDB ${VERSION}"
 	$0 stop
-	log_action_msg "Re-starting Percona Server ${VERSION}"
+	log_action_msg "Re-starting MyDB ${VERSION}"
 	$0 start
 	;;
 
   'status')
 	if [ "$(get_running)" -eq 1 ];
 	then
-		log_action_msg "Percona Server ${VERSION} is running"
+		log_action_msg "MyDB ${VERSION} is running"
 	else
-		log_action_msg "Percona Server ${VERSION} is not running"
+		log_action_msg "MyDB ${VERSION} is not running"
 		exit 3
 	fi
 	;;
