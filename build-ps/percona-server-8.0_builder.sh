@@ -495,21 +495,16 @@ install_deps() {
         apt-get -y install curl bison cmake perl libssl-dev libaio-dev libldap2-dev libwrap0-dev gdb unzip gawk
         apt-get -y install lsb-release libmecab-dev libncurses5-dev libpam-dev zlib1g-dev libcurl4-openssl-dev
         apt-get -y install libldap2-dev libnuma-dev libjemalloc-dev libc6-dbg valgrind libjson-perl libsasl2-dev patchelf
-        if [ x"${DIST}" = xfocal -o x"${DIST}" = xnoble -o x"${DIST}" = xbullseye -o x"${DIST}" = xjammy -o x"${DIST}" = xbookworm -o x"${DIST}" = xnoble ]; then
-            apt-get -y install python3-mysqldb
-        else
-            apt-get -y install python-mysqldb
-        fi
+        apt-get -y install python3-mysqldb
         if [ x"${DIST}" = xbionic ]; then
             apt-get -y install gcc-8 g++-8
             update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 700 --slave /usr/bin/g++ g++ /usr/bin/g++-7
             update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 800 --slave /usr/bin/g++ g++ /usr/bin/g++-8
-        elif [ x"${DIST}" = xnoble ]; then
-            apt-get -y install gcc-13 g++-13
-            update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 100 --slave /usr/bin/g++ g++ /usr/bin/g++-13
+        elif [ x"${DIST}" = xfocal ]; then
+            apt-get -y install gcc-10 g++-10
+            update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 100 --slave /usr/bin/g++ g++ /usr/bin/g++-10
         else
-            apt-get -y install gcc-10 g++-10 cpp-10
-            update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 100 --slave /usr/bin/g++ g++ /usr/bin/g++-10 --slave /usr/bin/gcov gcov /usr/bin/gcov-10
+            apt-get -y install gcc g++ cpp
         fi
         apt-get -y install libeatmydata
         apt-get -y install dh-apparmor
@@ -527,9 +522,8 @@ install_deps() {
             apt-get -y install libzstd1-dev
         fi
         apt-get install -y libsasl2-dev libsasl2-modules-gssapi-mit libkrb5-dev
-        if [ x${DIST} = xnoble ]; then
-            apt-get -y install libtirpc-dev gsasl-common
-        fi
+        apt-get -y install libtirpc-dev || true
+        apt-get -y install gsasl-common || true
     fi
     if [ ! -d /usr/local/percona-subunit2junitxml ]; then
         cd /usr/local
@@ -859,20 +853,6 @@ build_deb(){
 
     cd ${DIRNAME}
     dch -b -m -D "$DEBIAN_VERSION" --force-distribution -v "${VERSION}-${RELEASE}-${DEB_RELEASE}.${DEBIAN_VERSION}" 'Update distribution'
-
-
-    if [ ${DEBIAN_VERSION} != trusty -a ${DEBIAN_VERSION} != xenial -a ${DEBIAN_VERSION} != jessie -a ${DEBIAN_VERSION} != stretch -a ${DEBIAN_VERSION} != artful -a ${DEBIAN_VERSION} != bionic -a ${DEBIAN_VERSION} != focal -a "${DEBIAN_VERSION}" != disco -a "${DEBIAN_VERSION}" != buster -a "${DEBIAN_VERSION}" != hirsute -a "${DEBIAN_VERSION}" != bullseye -a "${DEBIAN_VERSION}" != jammy -a "${DEBIAN_VERSION}" != bookworm -a "${DEBIAN_VERSION}" != noble ]; then
-        gcc47=$(which gcc-4.7 2>/dev/null || true)
-        if [ -x "${gcc47}" ]; then
-            export CC=gcc-4.7
-            export USE_THIS_GCC_VERSION="-4.7"
-            export CXX=g++-4.7
-        else
-            export CC=gcc-4.8
-            export USE_THIS_GCC_VERSION="-4.8"
-            export CXX=g++-4.8
-        fi
-    fi
 
     if [ ${DEBIAN_VERSION} = "xenial" ]; then
         sed -i 's/export CFLAGS=/export CFLAGS=-Wno-error=date-time /' debian/rules
