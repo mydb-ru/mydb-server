@@ -267,7 +267,7 @@ get_sources(){
     cmake .  -DWITH_SSL=system -DFORCE_INSOURCE_BUILD=1 -DWITH_ZLIB=bundled -DWITH_CURL=bundled -DWITH_NDBCLUSTER_STORAGE_ENGINE=OFF
     make dist
     #
-    EXPORTED_TAR=$(basename $(find . -type f -name percona-server*.tar.gz | sort | tail -n 1))
+    EXPORTED_TAR=$(basename $(find . -type f -name mydb-server*.tar.gz | sort | tail -n 1))
     #
     PSDIR=${EXPORTED_TAR%.tar.gz}
     rm -fr ${PSDIR}
@@ -537,10 +537,10 @@ install_deps() {
 
 get_tar(){
     TARBALL=$1
-    TARFILE=$(basename $(find $WORKDIR/$TARBALL -name 'percona-server*.tar.gz' | sort | tail -n1))
+    TARFILE=$(basename $(find $WORKDIR/$TARBALL -name 'mydb-server*.tar.gz' | sort | tail -n1))
     if [ -z $TARFILE ]
     then
-        TARFILE=$(basename $(find $CURDIR/$TARBALL -name 'percona-server*.tar.gz' | sort | tail -n1))
+        TARFILE=$(basename $(find $CURDIR/$TARBALL -name 'mydb-server*.tar.gz' | sort | tail -n1))
         if [ -z $TARFILE ]
         then
             echo "There is no $TARBALL for build"
@@ -588,10 +588,10 @@ build_srpm(){
     cd $WORKDIR
     get_tar "source_tarball"
     rm -fr rpmbuild
-    ls | grep -v percona-server*.tar.* | xargs rm -rf
+    ls | grep -v mydb-server*.tar.* | xargs rm -rf
     mkdir -vp rpmbuild/{SOURCES,SPECS,BUILD,SRPMS,RPMS}
 
-    TARFILE=$(basename $(find . -name 'percona-server-*.tar.gz' | sort | tail -n1))
+    TARFILE=$(basename $(find . -name 'mydb-server-*.tar.gz' | sort | tail -n1))
     NAME=$(echo ${TARFILE}| awk -F '-' '{print $1"-"$2}')
     VERSION=$(echo ${TARFILE}| awk -F '-' '{print $3}')
     #
@@ -694,10 +694,10 @@ build_rpm(){
         echo "It is not possible to build rpm here"
         exit 1
     fi
-    SRC_RPM=$(basename $(find $WORKDIR/srpm -name 'percona-server-*.src.rpm' | sort | tail -n1))
+    SRC_RPM=$(basename $(find $WORKDIR/srpm -name 'mydb-*.src.rpm' | sort | tail -n1))
     if [ -z $SRC_RPM ]
     then
-        SRC_RPM=$(basename $(find $CURDIR/srpm -name 'percona-server-*.src.rpm' | sort | tail -n1))
+        SRC_RPM=$(basename $(find $CURDIR/srpm -name 'mydb-*.src.rpm' | sort | tail -n1))
         if [ -z $SRC_RPM ]
         then
             echo "There is no src rpm for build"
@@ -884,7 +884,7 @@ build_tarball(){
     fi
     get_tar "source_tarball"
     cd $WORKDIR
-    TARFILE=$(basename $(find . -name 'percona-server-*.tar.gz' | sort | tail -n1))
+    TARFILE=$(basename $(find . -name 'mydb-server-*.tar.gz' | sort | tail -n1))
     if [ -f /etc/debian_version ]; then
       export OS_RELEASE="$(lsb_release -sc)"
     fi
@@ -905,7 +905,7 @@ build_tarball(){
     #
 
     ARCH=$(uname -m 2>/dev/null||true)
-    TARFILE=$(basename $(find . -name 'percona-server-*.tar.gz' | sort | grep -v "tools" | tail -n1))
+    TARFILE=$(basename $(find . -name 'mydb-server-*.tar.gz' | sort | grep -v "tools" | tail -n1))
     NAME=$(echo ${TARFILE}| awk -F '-' '{print $1"-"$2}')
     VERSION=$(echo ${TARFILE}| awk -F '-' '{print $3}')
     #

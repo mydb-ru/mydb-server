@@ -25,7 +25,7 @@
 %define build_timestamp %(date +"%Y")
 %undefine _missing_build_ids_terminate_build
 %global mysql_vendor Oracle and/or its affiliates
-%global percona_server_vendor Percona, Inc
+%global mydb_vendor MyDB LLC
 %global mysqldatadir /var/lib/mysql
 
 %global mysql_version @@MYSQL_VERSION@@
@@ -68,7 +68,7 @@
 %{!?feature_set:                 %global feature_set community}
 %{!?compilation_comment_release: %global compilation_comment_release MyDB Server (GPL), Release %{percona_server_version}, Revision %{revision}}
 %{!?compilation_comment_debug:   %global compilation_comment_debug MyDB Server - Debug (GPL), Release %{percona_server_version}, Revision %{revision}}
-%{!?src_base:                    %global src_base percona-server}
+%{!?src_base:                    %global src_base mydb-server}
 
 # Setup cmake flags for TokuDB
 %if 0%{?tokudb}
@@ -137,16 +137,16 @@
 %global license_files_server  %{src_dir}/README.md
 %global license_type          GPLv2
 
-Name:           percona-server
-Summary:        Percona-Server: a very fast and reliable SQL database server
+Name:           mydb
+Summary:        MyDB Server: a very fast and reliable SQL database server
 Group:          Applications/Databases
 Version:        %{mysql_version}
 Release:        %{release}
 License:        Copyright (c) 2000, %{build_timestamp}, %{mysql_vendor}. All rights reserved. Under %{?license_type} license as shown in the Description field..
-Source0:        http://www.percona.com/downloads/Percona-Server-8.0/Percona-Server-%{mysql_version}-%{percona_server_version}/source/%{src_dir}.tar.gz
-URL:            http://www.percona.com/
-Packager:       Percona MySQL Development Team <mysqldev@percona.com>
-Vendor:         %{percona_server_vendor}
+Source0:        http://downloads.mydb.ru/downloads/mydb-server-8.4/mydb-server-%{mysql_version}-%{percona_server_version}/source/%{src_dir}.tar.gz
+URL:            http://mydb.ru/
+Packager:       MyDB Server Development Team <mysql-dev@mydb.ru>
+Vendor:         %{mydb_vendor}
 Source5:        mysql_config.sh
 Source90:       filter-provides.sh
 Source91:       filter-requires.sh
@@ -228,25 +228,21 @@ BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 %endif
 
 %description
-The Percona Server software delivers a very fast, multi-threaded, multi-user,
-and robust SQL (Structured Query Language) database server. Percona Server
+The MyDB Server software delivers a very fast, multi-threaded, multi-user,
+and robust SQL (Structured Query Language) database server. MyDB Server
 is intended for mission-critical, heavy-load production systems.
 
-Percona recommends that all production deployments be protected with a support
-contract (http://www.percona.com/mysql-suppport/) to ensure the highest uptime,
-be eligible for hot fixes, and boost your team's productivity.
-
-%package -n percona-server-server
-Summary:        Percona Server: a very fast and reliable SQL database server
+%package -n mydb-server
+Summary:        MyDB Server: a very fast and reliable SQL database server
 Group:          Applications/Databases
 Requires:       coreutils
 Requires:       grep
 Requires:       procps
 Requires:       shadow-utils
 Requires:       net-tools
-Requires(pre):  percona-server-shared
-Requires:       percona-server-client
-Requires:       percona-icu-data-files
+Requires(pre):  mydb-shared
+Requires:       mydb-client
+Requires:       mydb-icu-data-files
 Requires:       curl
 Requires:       openssl
 %if 0%{?rhel} >= 8
@@ -286,36 +282,23 @@ Obsoletes:      mariadb-connector-c-config
 Obsoletes:      percona-server-tokudb
 %endif
 
-%description -n percona-server-server
-The Percona Server software delivers a very fast, multi-threaded, multi-user,
-and robust SQL (Structured Query Language) database server. Percona Server
+%description -n mydb-server
+The MyDB Server software delivers a very fast, multi-threaded, multi-user,
+and robust SQL (Structured Query Language) database server. MyDB Server
 is intended for mission-critical, heavy-load production systems.
 
-Percona recommends that all production deployments be protected with a support
-contract (http://www.percona.com/mysql-suppport/) to ensure the highest uptime,
-be eligible for hot fixes, and boost your team's productivity.
-
-This package includes the Percona Server with XtraDB binary
-as well as related utilities to run and administer Percona Server.
-
-If you want to access and work with the database, you have to install
-package "percona-server-client" as well!
-
-
-%package -n percona-server-client
-Summary:        Percona Server - Client
+%package -n mydb-client
+Summary:        MyDB Server - Client
 Group:          Applications/Databases
-Requires:       percona-server-shared
+Requires:       mydb-shared
 Provides:       mysql-client MySQL-client mysql MySQL
 Conflicts:      Percona-SQL-client-50 Percona-Server-client-51 Percona-Server-client-55 Percona-Server-client-56 Percona-Server-client-57
 
-%description -n percona-server-client
-This package contains the standard Percona Server client and administration tools.
+%description -n mydb-client
+This package contains the standard MyDB Server client and administration tools.
 
-For a description of Percona Server see http://www.percona.com/software/percona-server/
-
-%package -n percona-server-test
-Summary:        Test suite for the Percona Server
+%package -n mydb-test
+Summary:        Test suite for the MyDB Server
 Group:          Applications/Databases
 Requires:       perl(Carp)
 Requires:       perl(Config)
@@ -353,13 +336,11 @@ Provides:       mysql-test = %{version}-%{release}
 Provides:       mysql-test%{?_isa} = %{version}-%{release}
 Conflicts:      Percona-SQL-test-50 Percona-Server-test-51 Percona-Server-test-55 Percona-Server-test-56 Percona-Server-test-57
 
-%description -n percona-server-test
-This package contains the Percona Server regression test suite.
+%description -n mydb-test
+This package contains the MyDB Server regression test suite.
 
-For a description of Percona Server see http://www.percona.com/software/percona-server/
-
-%package -n percona-server-devel
-Summary:        Percona Server - Development header files and libraries
+%package -n mydb-devel
+Summary:        MyDB Server - Development header files and libraries
 Group:          Applications/Databases
 Obsoletes:     mariadb-devel
 Obsoletes:     mariadb-connector-c-devel
@@ -372,14 +353,12 @@ Obsoletes:      mariadb-connector-c-devel
 Obsoletes:      mariadb-devel
 %endif
 
-%description -n percona-server-devel
+%description -n mydb-devel
 This package contains the development header files and libraries necessary
-to develop Percona Server client applications.
+to develop MyDB Server client applications.
 
-For a description of Percona Server see http://www.percona.com/software/percona-server/
-
-%package -n percona-server-shared
-Summary:        Percona Server - Shared libraries
+%package -n mydb-shared
+Summary:        MyDB Server - Shared libraries
 Group:          Applications/Databases
 Provides:       mysql-libs = %{version}-%{release}
 Provides:       mysql-libs%{?_isa} = %{version}-%{release}
@@ -393,14 +372,14 @@ Requires(pre):  percona-server-shared-compat
 %endif
 %endif
 
-%description -n percona-server-shared
+%description -n mydb-shared
 This package contains the shared libraries (*.so*) which certain languages
-and applications need to dynamically load and use Percona Server.
+and applications need to dynamically load and use MyDB Server.
 
 %ifarch x86_64
 %if 0%{?compatlib}
-%package -n percona-server-shared-compat
-Summary:        Shared compat libraries for Percona Server %{compatver}-%{percona_compatver} database client applications
+%package -n mydb-shared-compat
+Summary:        Shared compat libraries for MyDB Server %{compatver}-%{percona_compatver} database client applications
 Group:          Applications/Databases
 Provides:       mysql-libs-compat = %{version}-%{release}
 Provides:       mysql-libs-compat%{?_isa} = %{version}-%{release}
@@ -419,8 +398,8 @@ Conflicts:      Percona-Server-shared-55
 Conflicts:      Percona-Server-shared-56
 Conflicts:      Percona-Server-shared-57
 
-%description -n percona-server-shared-compat
-This package contains the shared compat libraries for Percona Server %{compatver}-%{percona_compatver} client
+%description -n mydb-shared-compat
+This package contains the shared compat libraries for MyDB Server %{compatver}-%{percona_compatver} client
 applications.
 %endif
 %endif
@@ -442,43 +421,43 @@ This package contains the TokuDB plugin for Percona Server %{version}-%{release}
 
 %if 0%{?rocksdb}
 # ----------------------------------------------------------------------------
-%package -n percona-server-rocksdb
-Summary:        Percona Server - RocksDB package
+%package -n mydb-rocksdb
+Summary:        MyDB Server - RocksDB package
 Group:          Applications/Databases
-Requires:       percona-server-server = %{version}-%{release}
-Requires:       percona-server-shared = %{version}-%{release}
-Requires:       percona-server-client = %{version}-%{release}
+Requires:       mydb-server = %{version}-%{release}
+Requires:       mydb-shared = %{version}-%{release}
+Requires:       mydb-client = %{version}-%{release}
 
-%description -n percona-server-rocksdb
-This package contains the RocksDB plugin for Percona Server %{version}-%{release}
+%description -n mydb-rocksdb
+This package contains the RocksDB plugin for MyDB Server %{version}-%{release}
 %endif
 
-%package  -n   percona-mysql-router
-Summary:       Percona MySQL Router
+%package  -n   mydb-router
+Summary:       MyDB Router
 Group:         Applications/Databases
-Provides:      percona-mysql-router = %{version}-%{release}
-Obsoletes:     percona-mysql-router < %{version}-%{release}
+Provides:      mydb-router = %{version}-%{release}
+Obsoletes:     mydb-router < %{version}-%{release}
 Provides:      mysql-router
 
-%description -n percona-mysql-router
-The Percona MySQL Router software delivers a fast, multi-threaded way of
+%description -n mydb-router
+The MyDB Router software delivers a fast, multi-threaded way of
 routing connections from MySQL Clients to MySQL Servers.
 
-%package   -n   percona-mysql-router-devel
-Summary:        Development header files and libraries for Percona MySQL Router
+%package   -n   mydb-router-devel
+Summary:        Development header files and libraries for MyDB Router
 Group:          Applications/Databases
-Provides:       percona-mysql-router-devel = %{version}-%{release}
+Provides:       mydb-router-devel = %{version}-%{release}
 Obsoletes:      mysql-router-devel
 
-%description -n percona-mysql-router-devel
+%description -n mydb-router-devel
 This package contains the development header files and libraries
-necessary to develop Percona MySQL Router applications.
+necessary to develop MyDB Router applications.
 
-%package   -n   percona-icu-data-files
-Summary:        MySQL packaging of ICU data files
+%package   -n   mydb-icu-data-files
+Summary:        MyDB packaging of ICU data files
 
-%description -n percona-icu-data-files
-This package contains ICU data files needer by MySQL regular expressions.
+%description -n mydb-icu-data-files
+This package contains ICU data files needer by MyDB regular expressions.
 
 %prep
 %setup -q -T -a 0 -c -n %{src_dir}
@@ -726,7 +705,7 @@ rm -rf %{buildroot}/usr/lib/libkmippp.a
   rm -r $(readlink var) var
 %endif
 
-%pretrans -n percona-server-server
+%pretrans -n mydb-server
 if [ -d %{_datadir}/mysql ] && [ ! -L %{_datadir}/mysql ]; then
   MYCNF_PACKAGE=$(rpm -qf /usr/share/mysql --queryformat "%{NAME}")
 fi
@@ -738,10 +717,10 @@ if [ "$MYCNF_PACKAGE" == "mariadb-libs" -o "$MYCNF_PACKAGE" == "mysql-libs" ]; t
   fi
 fi
 
-%pre -n percona-server-server
+%pre -n mydb-server
 /usr/sbin/groupadd -g 27 -o -r mysql >/dev/null 2>&1 || :
 /usr/sbin/useradd -M %{!?el5:-N} -g mysql -o -r -d /var/lib/mysql -s /bin/false \
-    -c "Percona Server" -u 27 mysql >/dev/null 2>&1 || :
+    -c "MyDB Server" -u 27 mysql >/dev/null 2>&1 || :
 if [ "$1" = 1 ]; then
   if [ -f %{_sysconfdir}/my.cnf ]; then
     timestamp=$(date '+%Y%m%d-%H%M')
@@ -750,7 +729,7 @@ if [ "$1" = 1 ]; then
   fi
 fi
 
-%post -n percona-server-server
+%post -n mydb-server
 datadir=$(/usr/bin/my_print_defaults server mysqld | grep '^--datadir=' | sed -n 's/--datadir=//p' | tail -n 1)
 /bin/chmod 0751 "$datadir" >/dev/null 2>&1 || :
 if [ ! -e /var/log/mysqld.log ]; then
@@ -785,12 +764,12 @@ if [ -d /etc/percona-server.conf.d ]; then
     fi
 fi
 
-echo "Percona Server is distributed with several useful UDF (User Defined Function) from Percona Toolkit."
+echo "MyDB Server is distributed with several useful UDF (User Defined Function) from Percona Toolkit."
 echo "Run the following command to install these functions (fnv_64, fnv1a_64, murmur_hash):"
 echo "mysql -e \"INSTALL COMPONENT 'file://component_percona_udf'\""
-echo "See http://www.percona.com/doc/percona-server/8.0/management/udf_percona_toolkit.html for more details"
+echo "See http://docs.mydb.ru/mydb-server/8.4/management/udf_percona_toolkit.html for more details"
 
-%preun -n percona-server-server
+%preun -n mydb-server
 %if 0%{?systemd}
   %systemd_preun mysqld.service
 %else
@@ -809,7 +788,7 @@ if [ "$1" = 0 ]; then
   fi
 fi
 
-%postun -n percona-server-server
+%postun -n mydb-server
 %if 0%{?systemd}
   %systemd_postun_with_restart mysqld.service
 %else
@@ -821,7 +800,7 @@ fi
 rm -rf %{ps_telemetry}
 %endif
 
-%posttrans -n percona-server-server
+%posttrans -n mydb-server
 if [ -d %{_datadir}/mysql ] && [ ! -L %{_datadir}/mysql ]; then
   MYCNF_PACKAGE=$(rpm -qf /usr/share/mysql --queryformat "%{NAME}")
   if [ "$MYCNF_PACKAGE" == "file %{_datadir}/mysql is not owned by any package" ]; then
@@ -833,14 +812,14 @@ if [ ! -d %{_datadir}/mysql ] && [ ! -L %{_datadir}/mysql ]; then
     ln -s %{_datadir}/percona-server %{_datadir}/mysql
 fi
 
-%post -n percona-server-shared -p /sbin/ldconfig
+%post -n mydb-shared -p /sbin/ldconfig
 
-%postun -n percona-server-shared -p /sbin/ldconfig
+%postun -n mydb-shared -p /sbin/ldconfig
 
 %ifarch x86_64
 %if 0%{?compatlib}
 %if 0%{?rhel} > 6
-%post -n percona-server-shared-compat
+%post -n mydb-shared-compat
 for lib in libmysqlclient{.so.18.0.0,.so.18,_r.so.18.0.0,_r.so.18}; do
   if [ ! -f %{_libdir}/mysql/${lib} ]; then
     ln -s libmysqlclient.so.18.1.0 %{_libdir}/mysql/${lib};
@@ -848,7 +827,7 @@ for lib in libmysqlclient{.so.18.0.0,.so.18,_r.so.18.0.0,_r.so.18}; do
 done
 /sbin/ldconfig
 
-%postun -n percona-server-shared-compat
+%postun -n mydb-shared-compat
 for lib in libmysqlclient{.so.18.0.0,.so.18,_r.so.18.0.0,_r.so.18}; do
   if [ -h %{_libdir}/mysql/${lib} ]; then
     rm -f %{_libdir}/mysql/${lib};
@@ -856,7 +835,7 @@ for lib in libmysqlclient{.so.18.0.0,.so.18,_r.so.18.0.0,_r.so.18}; do
 done
 /sbin/ldconfig
 %else
-%post -n percona-server-shared-compat
+%post -n mydb-shared-compat
 for lib in libmysqlclient{.so.16.0.0,.so.16,_r.so.16.0.0,_r.so.16}; do
   if [ ! -f %{_libdir}/mysql/${lib} ]; then
     ln -s libmysqlclient.so.16.1.0 %{_libdir}/mysql/${lib};
@@ -864,7 +843,7 @@ for lib in libmysqlclient{.so.16.0.0,.so.16,_r.so.16.0.0,_r.so.16}; do
 done
 /sbin/ldconfig
 
-%postun -n percona-server-shared-compat
+%postun -n mydb-shared-compat
 for lib in libmysqlclient{.so.16.0.0,.so.16,_r.so.16.0.0,_r.so.16}; do
   if [ -h %{_libdir}/mysql/${lib} ]; then
     rm -f %{_libdir}/mysql/${lib};
@@ -876,7 +855,7 @@ done
 %endif
 
 %if 0%{?tokudb}
-%post -n percona-server-tokudb
+%post -n percona--tokudb
 if [ $1 -eq 1 ] ; then
   echo -e "\n\n * This release of Percona Server is distributed with TokuDB storage engine."
   echo -e " * Run the following script to enable the TokuDB storage engine in Percona Server:\n"
@@ -887,20 +866,20 @@ fi
 %endif
 
 %if 0%{?rocksdb}
-%post -n percona-server-rocksdb
+%post -n mydb-rocksdb
 if [ $1 -eq 1 ] ; then
-  echo -e "\n\n * This release of Percona Server is distributed with RocksDB storage engine."
-  echo -e " * Run the following script to enable the RocksDB storage engine in Percona Server:\n"
+  echo -e "\n\n * This release of MyDB Server is distributed with RocksDB storage engine."
+  echo -e " * Run the following script to enable the RocksDB storage engine in MyDB Server:\n"
   echo -e "\tps-admin --enable-rocksdb -u <mysql_admin_user> -p[mysql_admin_pass] [-S <socket>] [-h <host> -P <port>]\n"
 fi
 %endif
 
-%pre -n percona-mysql-router
+%pre -n mydb-router
 /usr/sbin/groupadd -r mysqlrouter >/dev/null 2>&1 || :
 /usr/sbin/useradd -M -N -g mysqlrouter -r -d /var/lib/mysqlrouter -s /bin/false \
-    -c "Percona MySQL Router" mysqlrouter >/dev/null 2>&1 || :
+    -c "MyDB Router" mysqlrouter >/dev/null 2>&1 || :
 
-%post -n percona-mysql-router
+%post -n mydb-router
 /sbin/ldconfig
 %if 0%{?systemd}
 %systemd_post mysqlrouter.service
@@ -908,7 +887,7 @@ fi
 /sbin/chkconfig --add mysqlrouter
 %endif # systemd
 
-%preun -n percona-mysql-router
+%preun -n mydb-router
 %if 0%{?systemd}
 %systemd_preun mysqlrouter.service
 %else
@@ -918,7 +897,7 @@ if [ "$1" = 0 ]; then
 fi
 %endif # systemd
 
-%postun -n percona-mysql-router
+%postun -n mydb-router
 /sbin/ldconfig
 %if 0%{?systemd}
 %systemd_postun_with_restart mysqlrouter.service
@@ -929,7 +908,7 @@ fi
 %endif # systemd
 
 
-%files -n percona-server-server
+%files -n mydb-server
 %defattr(-, root, root, -)
 %doc %{?license_files_server}
 %doc %{src_dir}/Docs/INFO_SRC*
@@ -1286,7 +1265,7 @@ fi
 %attr(755, root, root) %{_libdir}/mysql/plugin/debug/authentication_oci_client.so
 
 
-%files -n percona-server-client
+%files -n mydb-client
 %defattr(-, root, root, -)
 %doc %{?license_files_server}
 %attr(755, root, root) %{_bindir}/mysql
@@ -1310,7 +1289,7 @@ fi
 %attr(644, root, root) %{_mandir}/man1/mysqlslap.1*
 %attr(644, root, root) %{_mandir}/man1/mysql_config_editor.1*
 
-%files -n percona-server-devel
+%files -n mydb-devel
 %defattr(-, root, root, -)
 %doc %{?license_files_server}
 %attr(644, root, root) %{_mandir}/man1/comp_err.1*
@@ -1326,7 +1305,7 @@ fi
 %{_libdir}/mysql/lib%{shared_lib_pri_name}.so
 %{_libdir}/pkgconfig/%{shared_lib_pri_name}.pc
 
-%files -n percona-server-shared
+%files -n mydb-shared
 %defattr(-, root, root, -)
 %doc %{?license_files_server}
 %dir %attr(755, root, root) %{_libdir}/mysql
@@ -1338,7 +1317,7 @@ fi
 
 %ifarch x86_64
 %if 0%{?compatlib}
-%files -n percona-server-shared-compat
+%files -n mydb-shared-compat
 %defattr(-, root, root, -)
 %doc %{?license_files_server}
 %dir %attr(755, root, root) %{_libdir}/mysql
@@ -1348,7 +1327,7 @@ fi
 %endif
 %endif
 
-%files -n percona-server-test
+%files -n mydb-test
 %defattr(-, root, root, -)
 %doc %{?license_files_server}
 %attr(-, root, root) %{_datadir}/mysql-test
@@ -1544,7 +1523,7 @@ fi
 %endif
 
 %if 0%{?rocksdb}
-%files -n percona-server-rocksdb
+%files -n mydb-rocksdb
 %attr(-, root, root)
 %{_libdir}/mysql/plugin/ha_rocksdb.so
 %attr(755, root, root) %{_libdir}/mysql/plugin/debug/ha_rocksdb.so
@@ -1552,7 +1531,7 @@ fi
 %attr(755, root, root) %{_bindir}/sst_dump
 %endif
 
-%files -n percona-mysql-router
+%files -n mydb-router
 %defattr(-, root, root, -)
 %doc %{src_dir}/router/README.router  %{src_dir}/router/LICENSE.router
 %dir %{_sysconfdir}/mysqlrouter
@@ -1593,7 +1572,7 @@ fi
 %dir %attr(755, mysqlrouter, mysqlrouter) /var/log/mysqlrouter
 %dir %attr(755, mysqlrouter, mysqlrouter) /var/run/mysqlrouter
 
-%files -n percona-icu-data-files
+%files -n mydb-icu-data-files
 %defattr(-, root, root, -)
 %doc %{?license_files_server}
 %dir %attr(755, root, root) %{_libdir}/mysql/private/icudt73l
@@ -1601,6 +1580,9 @@ fi
 %{_libdir}/mysql/private/icudt73l/brkitr
 
 %changelog
+* Mon Oct 14 2024 MyDB Development Team <mysql-dev@mydb.ru> - 8.0.4-1.1
+- Change package names to mydb-*
+
 * Fri Feb 12 2021 Percona Development Team <info@percona.com> - 8.0.22-13
 - Release 8.0.22-13
 
