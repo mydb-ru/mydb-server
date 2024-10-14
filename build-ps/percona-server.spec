@@ -121,10 +121,6 @@
 %global __isa_bits            64
 %endif
 
-%if 0%{?rhel} >= 8
-%global ps_telemetry          /usr/local/percona/telemetry/ps
-%endif
-
 %global src_dir               %{src_base}-%{mysql_version}-%{percona_server_version}
 
 # We build debuginfo package so this is not used
@@ -245,9 +241,6 @@ Requires:       mydb-client
 Requires:       mydb-icu-data-files
 Requires:       curl
 Requires:       openssl
-%if 0%{?rhel} >= 8
-Requires:  percona-telemetry-agent
-%endif
 Obsoletes:     community-mysql-bench
 Obsoletes:     mysql-bench
 Obsoletes:     mariadb-connector-c-config
@@ -747,16 +740,6 @@ fi
   fi
 %endif
 
-%if 0%{?rhel} >= 8
-mkdir -p %{ps_telemetry}
-chown mysql:percona-telemetry %{ps_telemetry}
-chmod 775 %{ps_telemetry}
-chmod g+s %{ps_telemetry}
-chmod u+s %{ps_telemetry}
-chcon -t mysqld_db_t %{ps_telemetry}
-chcon -u system_u %{ps_telemetry}
-%endif
-
 if [ -d /etc/percona-server.conf.d ]; then
     CONF_EXISTS=$(grep "percona-server.conf.d" /etc/my.cnf | wc -l)
     if [ ${CONF_EXISTS} = 0 ]; then
@@ -795,9 +778,6 @@ fi
   if [ $1 -ge 1 ]; then
     /sbin/service mysql condrestart >/dev/null 2>&1 || :
   fi
-%endif
-%if 0%{?rhel} >= 8
-rm -rf %{ps_telemetry}
 %endif
 
 %posttrans -n mydb-server
