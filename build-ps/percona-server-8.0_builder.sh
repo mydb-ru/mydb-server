@@ -557,10 +557,10 @@ get_tar(){
 get_deb_sources(){
     param=$1
     echo $param
-    FILE=$(basename $(find $WORKDIR/source_deb -name "percona-server*.$param" | sort | tail -n1))
+    FILE=$(basename $(find $WORKDIR/source_deb -name "mydb-server*.$param" | sort | tail -n1))
     if [ -z $FILE ]
     then
-        FILE=$(basename $(find $CURDIR/source_deb -name "percona-server*.$param" | sort | tail -n1))
+        FILE=$(basename $(find $CURDIR/source_deb -name "mydb-server*.$param" | sort | tail -n1))
         if [ -z $FILE ]
         then
             echo "There is no sources for build"
@@ -778,13 +778,13 @@ build_source_deb(){
         echo "It is not possible to build source deb here"
         exit 1
     fi
-    rm -rf percona-server*
+    rm -rf mydb-server*
     get_tar "source_tarball"
     cd "$WORKDIR"
     rm -f *.dsc *.orig.tar.gz *.debian.tar.gz *.changes
     #
 
-    TARFILE=$(basename $(find . -name 'percona-server-*.tar.gz' | grep -v tokudb | sort | tail -n1))
+    TARFILE=$(basename $(find . -name 'mydb-server-*.tar.gz' | grep -v tokudb | sort | tail -n1))
 
     NAME=$(echo ${TARFILE}| awk -F '-' '{print $1"-"$2}')
     VERSION=$(echo ${TARFILE}| awk -F '-' '{print $3}')
@@ -792,12 +792,12 @@ build_source_deb(){
     TMPREL=$(echo ${TARFILE}| awk -F '-' '{print $4}')
     RELEASE=${TMPREL%.tar.gz}
 
-    NEWTAR=percona-server_${VERSION}-${RELEASE}.orig.tar.gz
+    NEWTAR=mydb-server_${VERSION}-${RELEASE}.orig.tar.gz
     mv ${TARFILE} ${NEWTAR}
 
     tar xzf ${NEWTAR}
     ls -la
-    cd percona-server-${VERSION}-${RELEASE}
+    cd mydb-server-${VERSION}-${RELEASE}
     cp -ap build-ps/debian/ .
     dch -m -D unstable --force-distribution -v "${VERSION}-${RELEASE}-${DEB_RELEASE}" "Update to new upstream release Percona Server ${VERSION}-${RELEASE}-1"
     copyright-update -d debian/copyright

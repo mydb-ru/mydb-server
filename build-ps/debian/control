@@ -1,4 +1,4 @@
-Source: percona-server
+Source: mydb-server
 Section: database
 Priority: extra
 Maintainer: MyDB Server Development Team <mysql-dev@mydb.ru>

@@ -1,2 +1,2 @@
-../percona-server_*.dsc usr/src/percona-server/
-../percona-server_*.tar.gz usr/src/percona-server/
+../mydb-server_*.dsc usr/src/mydb-server/
+../mydb-server_*.tar.gz usr/src/mydb-server/
