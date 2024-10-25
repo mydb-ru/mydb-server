@@ -7493,8 +7493,8 @@ bool MYSQL_BIN_LOG::write_event(Log_event *event_info) {
             thd->first_successful_insert_id_in_prev_stmt_for_binlog,
             event_info->event_cache_type, event_info->event_logging_type);
         if (cache_data->write_event(&e)) goto err;
-        if (event_info->is_using_immediate_logging())
-          thd->binlog_bytes_written += e.header()->data_written;
+          if (event_info->is_using_immediate_logging())
+            thd->binlog_bytes_written += e.header()->data_written;
       }
       if (thd->auto_inc_intervals_in_cur_stmt_for_binlog.nb_elements() > 0) {
         DBUG_PRINT(
@@ -7506,16 +7506,16 @@ bool MYSQL_BIN_LOG::write_event(Log_event *event_info) {
             thd->auto_inc_intervals_in_cur_stmt_for_binlog.minimum(),
             event_info->event_cache_type, event_info->event_logging_type);
         if (cache_data->write_event(&e)) goto err;
-        if (event_info->is_using_immediate_logging())
-          thd->binlog_bytes_written += e.header()->data_written;
+          if (event_info->is_using_immediate_logging())
+            thd->binlog_bytes_written += e.header()->data_written;
       }
       if (thd->rand_used) {
         Rand_log_event e(thd, thd->rand_saved_seed1, thd->rand_saved_seed2,
                          event_info->event_cache_type,
                          event_info->event_logging_type);
         if (cache_data->write_event(&e)) goto err;
-        if (event_info->is_using_immediate_logging())
-          thd->binlog_bytes_written += e.header()->data_written;
+          if (event_info->is_using_immediate_logging())
+            thd->binlog_bytes_written += e.header()->data_written;
       }
       if (!thd->user_var_events.empty()) {
         for (size_t i = 0; i < thd->user_var_events.size(); i++) {
@@ -7533,8 +7533,8 @@ bool MYSQL_BIN_LOG::write_event(Log_event *event_info) {
               user_var_event->type, user_var_event->charset_number, flags,
               event_info->event_cache_type, event_info->event_logging_type);
           if (cache_data->write_event(&e)) goto err;
-          if (event_info->is_using_immediate_logging())
-            thd->binlog_bytes_written += e.header()->data_written;
+            if (event_info->is_using_immediate_logging())
+              thd->binlog_bytes_written += e.header()->data_written;
         }
       }
     }
@@ -9559,8 +9559,10 @@ static void set_binlog_snapshot_file(const char *src) {
           sizeof(binlog_snapshot_file) - 1);
 }
 
+
+
 void MYSQL_BIN_LOG::report_missing_purged_gtids(
-    const Gtid_set *slave_executed_gtid_set, std::string &errmsg) {
+  const Gtid_set *slave_executed_gtid_set, std::string &errmsg) {
   DBUG_TRACE;
   THD *thd = current_thd;
   Gtid_set gtid_missing(gtid_state->get_lost_gtids()->get_sid_map());

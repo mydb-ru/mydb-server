@@ -1577,7 +1577,8 @@ class Get_access_maps : public boost::default_bfs_visitor {
                   Db_access_map *db_map, Db_access_map *db_wild_map,
                   Table_access_map *table_map, SP_access_map *sp_map,
                   SP_access_map *func_map, Grant_acl_set *with_admin_acl,
-                  Dynamic_privileges *dyn_acl, Restrictions *restrictions, bool effective_grants)
+                  Dynamic_privileges *dyn_acl, Restrictions *restrictions,
+                  bool effective_grants)
       : m_access(access),
         m_db_map(db_map),
         m_db_wild_map(db_wild_map),

@@ -1878,8 +1878,8 @@ sub command_line_setup {
     'vardir=s'        => \$opt_vardir,
 
     # Misc
-    'accept-test-fail'      => \$opt_accept_fail,
     'fs-cleanup-hook=s'     => \$opt_fs_cleanup_hook,
+    'accept-test-fail'      => \$opt_accept_fail,
     'charset-for-testdb=s'  => \$opt_charset_for_testdb,
     'colored-diff'          => \$opt_colored_diff,
     'comment=s'             => \$opt_comment,
