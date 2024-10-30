@@ -87,19 +87,28 @@ if ($openssl_binary_version_match)
     ('md4'       , NULL),
     ('md5-sha1'  , NULL),
     ('ripemd160' , NULL),
-    ('sha512-224', NULL),
-    ('sha512-256', NULL),
-    ('whirlpool' , NULL),
-    ('sm3'       , NULL),
-    ('blake2b512', NULL),
-    ('blake2s256', NULL),
     ('sha3-224'  , NULL),
     ('sha3-256'  , NULL),
     ('sha3-384'  , NULL),
-    ('sha3-512'  , NULL),
-    ('shake128'  , NULL),
-    ('shake256'  , NULL)
+    ('sha3-512'  , NULL)
   ;
+
+  # the following digests can only be used in create_digest() and not in
+  # asymmetric_sign() as these digests do not have corresponding asn1
+  # object identifiers
+  if ($include_digests_with_no_ans1_ids)
+  {
+    INSERT INTO digest_type(digest_name, builtin_template) VALUES
+      ('sha512-224', NULL),
+      ('sha512-256', NULL),
+      ('whirlpool' , NULL),
+      ('sm3'       , NULL),
+      ('blake2b512', NULL),
+      ('blake2s256', NULL),
+      ('shake128'  , NULL),
+      ('shake256'  , NULL)
+    ;
+  }
 
   --enable_query_log
   --enable_result_log
@@ -116,14 +125,12 @@ if ($openssl_binary_version_match)
 
   INSERT INTO digest_type(digest_name, builtin_template) VALUES
     ('md5'       , 'MD5(@message)'),
-    ('sha1'      , 'SHA(@message)'),
 
     ('sha224'    , 'SHA2(@message, 224)'),
     ('sha256'    , 'SHA2(@message, 256)'),
     ('sha384'    , 'SHA2(@message, 384)'),
     ('sha512'    , 'SHA2(@message, 512)'),
 
-    ('md5-sha1'  , NULL),
     ('sha512-224', NULL),
     ('sha512-256', NULL),
     ('sha3-224'  , NULL),
@@ -135,9 +142,14 @@ if ($openssl_binary_version_match)
   # BLAKE2B512, BLAKE2S256, SHAKE128, SHAKE256 and SM3 can only be used in
   # create_digest() and not in asymmetric_sign() as these digests do not have
   # corresponding asn1 object identifiers
+
+  # for some reason on Oracle Linux 9 (with default OpenSSL 3.0.7) 'sha1' and
+  # 'md5-sha1' cannot be used in RSA EVP_PKEY signing operations
   if ($include_digests_with_no_ans1_ids)
   {
     INSERT INTO digest_type(digest_name, builtin_template) VALUES
+      ('sha1'      , 'SHA(@message)'),
+      ('md5-sha1'  , NULL),
       ('sm3'       , NULL),
       ('blake2b512', NULL),
       ('blake2s256', NULL),
