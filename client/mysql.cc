@@ -3956,8 +3956,6 @@ print_table_data(MYSQL_RES *result)
   bool		*num_flag;
   size_t        sz;
 
-  sz= sizeof(bool) * mysql_num_fields(result);
-  num_flag= (bool *) my_safe_alloca(sz, MAX_ALLOCA_SIZE);
   if (column_types_flag)
   {
     print_field_types(result);
@@ -3965,6 +3963,8 @@ print_table_data(MYSQL_RES *result)
       return;
     mysql_field_seek(result,0);
   }
+  sz= sizeof(bool) * mysql_num_fields(result);
+  num_flag= (bool *) my_safe_alloca(sz, MAX_ALLOCA_SIZE);
   separator.copy("+",1,charset_info);
   while ((field = mysql_fetch_field(result)))
   {
