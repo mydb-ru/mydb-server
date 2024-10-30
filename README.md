@@ -1,38 +1,39 @@
-## Percona Server for MySQL
+## MyDB Сервер для MySQL
 
-![PS logo](doc/source/percona-server-logo.jpg)
+![MyDB logo](mydb-logo.png)
 
-Percona Server for MySQL is a free, fully compatible, enhanced, and open source drop-in replacement for any MySQL database. It provides superior performance, scalability, and instrumentation.
+MyDB Сервер для MySQL — это свободно доступная, распространяемая с открытым исходным кодом, полностью совместимая и расширенная замена любой базы данных MySQL. Продукт обеспечивает превосходную и оптимизированную производительность, более высокую масштабируемость и доступность, а также улучшенные функции резервного копирования, мониторинга и управления.
 
-Percona Server for MySQL is trusted by thousands of enterprises to provide better performance and concurrency for their most demanding workloads. It delivers higher value to MySQL server users with optimized performance, greater performance scalability and availability, enhanced backups, and increased visibility.
+Предприятия доверяют MyDB Сервер для MySQL, поскольку он обеспечивает лучшую производительность, надёжность и масштабируемость для самых требовательных рабочих нагрузок.
 
-## Installation
+## Установка
 
-You can install Percona Server for MySQL using the following methods:
-- from the Percona repository 
-- Build from the [source code](https://github.com/percona/percona-server)
+MyDB Сервер для MySQL можно установить следующими способами:
+- из репозиториев MyDB
+- сборкой из [исходного кода](https://gitflic.ru/project/mydb-ru/mydb-server)
 
-The installation instructions in the official documentation are [here](https://www.percona.com/doc/percona-server/8.0/installation.html).
+Инструкции по установке в официальной документации находятся [здесь](https://docs.mydb.ru/mydb-server/latest/installation.html).
 
-## Submit a bug report or a feature request
+## Сообщения об ошибках и запросы на функциональность
 
-If you find a bug in Percona Server for MySQL, you can submit a report to the project's [Jira issue tracker](https://jira.percona.com/projects/PS/issues)
+Если вы нашли ошибку в MyDB Сервер для MySQL, вы можете отправить отчет в [трекер проекта](https://gitflic.ru/project/mydb-ru/mydb-server/issue).
 
-As a general rule of thumb, please try to create a bug report that is:
+В качестве общего правила, отчёты об ошибках должны обладать следующими свойствами:
 
-- Reproducible - include the steps on how to reproduce the issue
-- Specific - include as much detail as possible, such as which version, which environment, etc.
-- Unique - do not duplicate existing tickets
-- Scoped to a single issue - only one issue per report
+- Воспроизводимость: включите инструкции по воспроизведению проблемы.
+- Детальность: укажите как можно больше подробностей, например, версию, окружение и т. д.
+- Уникальность: не дублируйте существующие заявки.
+- Контекст: только одна проблема в отчете.
 
-## Licensing
+## Лицензия
 
-Percona is dedicated to **keeping open source open**. Whenever possible, we strive to include permissive licensing for both our software and documentation. For this project, we are using version 2 of the GNU General Public License (GPLv2).
+Компания MyDB нацелена на **сохранение свободного ПО свободным**. Этот проект распространяется под лицензией GPLv2.
 
-## How to get involved
+## Внесение вклада
 
-We encourage contributions and are always looking for new members that are as dedicated to serving the community as we are. The [Contributing Guide](https://github.com/percona/percona-server/blob/8.0/doc/source/contributing.md) contains how you can contribute.
+Мы поощряем вклад и всегда ищем новых участников, которые так же преданы сообществу, как и мы. В [Руководстве для разработчиков](https://docs.mydb.ru/mydb-server/latest/development.html) описано, как вы можете внести свой вклад.
 
-## Contact
 
-You can reach us by using the [Forum](https://forums.percona.com/c/mysql-mariadb/percona-server-for-mysql-8-0).
+## Контакты
+
+Вы можете связаться с нами, используя адрес электронной почты [dev@mydb.ru](mailto:dev@mydb.ru).
