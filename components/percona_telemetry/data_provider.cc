@@ -24,17 +24,16 @@ namespace {
 inline const char *b2s(bool val) { return val ? "1" : "0"; }
 
 /*
-  mysql.session user is mostly enough, but it lacks the following privileges:
+  percona.telemetry user is created when server starts with telemetry
+  enabled. The user is deleted, when the server is started with telemetry
+  disabled.
 
-  1. REPLICATION SLAVE
-  2. REPLICATION CLIENT
-  3. SELECT on mysql.component
-  4. SELECT on performance_schema.replication_group_members
-
-  These privileges are added at server startup in setup_percona_telemetry()
-  if Percona telemetry is enabled.
+  Privileges:
+  1. SELECT
+  2. REPLICATION SLAVE
+  3. REPLICATION CLIENT
 */
-constexpr const char default_command_user_name[] = "mysql.session";
+constexpr const char default_command_user_name[] = "percona.telemetry";
 constexpr const char default_command_host_name[] = "localhost";
 
 namespace JSONKey {

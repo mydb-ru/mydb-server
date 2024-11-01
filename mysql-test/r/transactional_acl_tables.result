@@ -1342,9 +1342,7 @@ SELECT host, db, user, table_name, column_name, column_priv FROM mysql.columns_p
 host	db	user	table_name	column_name	column_priv
 h	test	u1	t1	a	Select,Insert,Update,References
 h	test	u1	t2	a	Insert
-SELECT host, db, user, table_name, grantor, table_priv, column_priv FROM mysql.tables_priv
-WHERE NOT (user = 'mysql.session'
-AND table_name IN ('component', 'replication_group_members'));
+SELECT host, db, user, table_name, grantor, table_priv, column_priv FROM mysql.tables_priv;
 host	db	user	table_name	grantor	table_priv	column_priv
 h	test	u1	t1	root@localhost		Select,Insert,Update,References
 h	test	u1	t2	root@localhost		Insert
@@ -1356,9 +1354,7 @@ COMMIT;
 REVOKE ALL PRIVILEGES, GRANT OPTION FROM u1@h;
 SELECT host, db, user, table_name, column_name, column_priv FROM mysql.columns_priv;
 host	db	user	table_name	column_name	column_priv
-SELECT host, db, user, table_name, grantor, table_priv, column_priv FROM mysql.tables_priv
-WHERE NOT (user = 'mysql.session'
-AND table_name IN ('component', 'replication_group_members'));
+SELECT host, db, user, table_name, grantor, table_priv, column_priv FROM mysql.tables_priv;
 host	db	user	table_name	grantor	table_priv	column_priv
 localhost	mysql	mysql.session	user	root@localhost	Select	
 localhost	sys	mysql.sys	sys_config	root@localhost	Select	
@@ -1784,7 +1780,7 @@ call mtr.add_suppression("mysql.user has no `Event_priv` column at position 28")
 
 # Starting mysqld in the regular mode...
 
-# restart
+# restart:--loose-percona-telemetry-disable=1
 
 # Check that any ACL statement is failed when privilege tables
 # have engine type MyISAM
@@ -1819,7 +1815,7 @@ tables_priv	MyISAM
 user	MyISAM
 
 # mysql_upgrade...
-# restart:--upgrade=FORCE
+# restart:--upgrade=FORCE --loose-percona-telemetry-disable=1
 
 # The ACL tables must have been upgraded.
 SELECT table_name, engine FROM INFORMATION_SCHEMA.TABLES

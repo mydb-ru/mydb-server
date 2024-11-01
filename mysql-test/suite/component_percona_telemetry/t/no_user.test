@@ -1,5 +1,9 @@
 # Test that lack of the user used by Percona Telemetry Component
 # doesn't cause hangs during server restart and no orphaned sessions are created.
+# Ensure that the user is recreated if needed.
+# Ensure that user privileges are fixed during the server startup.
+# Ensure that the user is deleted if the server is started with telemetry disabled.
+
 
 --source include/have_percona_telemetry.inc
 
@@ -9,9 +13,8 @@
 
 --mkdir $telemetry_root_dir
 
-# Record mysql.session user privileges
-SELECT * FROM information_schema.table_privileges WHERE grantee = "'mysql.session'@'localhost'" ORDER BY table_schema, table_name;
-SHOW GRANTS FOR 'mysql.session'@'localhost';
+# Record percona.telemetry user privileges
+SHOW GRANTS FOR 'percona.telemetry'@'localhost';
 
 # restart the server with custom telemetry file path and timeouts
 --let $restart_parameters = "restart:--percona_telemetry.grace_interval=$grace_interval --percona_telemetry.scrape_interval=$scrape_interval --percona_telemetry.telemetry_root_dir=$telemetry_root_dir"
@@ -42,28 +45,61 @@ RENAME USER 'root.tmp'@'localhost' to 'root'@'localhost';
 #
 # Now rename the user used by component
 #
-RENAME USER 'mysql.session'@'localhost' to 'mysql.session.tmp'@'localhost';
+RENAME USER 'percona.telemetry'@'localhost' to 'percona.telemetry.tmp'@'localhost';
 
 # Wait a few cycles and ensure that SHOW PROCESSLIST does not contain rows related to orphaned sessions.
 --let $timeout = `select $grace_interval + 3 * $scrape_interval`
 --sleep $timeout
 
 --let $assert_text = No orphaned sessions expected in processlist
---let $assert_cond = [SELECT COUNT(*) as Result FROM performance_schema.processlist WHERE user = "mysql.session";, Result, 1] = 0
+--let $assert_cond = [SELECT COUNT(*) as Result FROM performance_schema.processlist WHERE user = "percona.telemetry";, Result, 1] = 0
 --source include/assert.inc
 
 # Check that no new telemetry file was created
---echo 'mysql.session' user used by component does not exist. Telemetry dir should still contain 1 file.
+--echo 'percona.telemetry' user used by component does not exist. Telemetry dir should still contain 1 file.
 --exec ls -1 $telemetry_root_dir | wc -l
 
 
 #
 # It should be still possible to restart the server.
 #
-RENAME USER 'mysql.session.tmp'@'localhost' to 'mysql.session'@'localhost';
+RENAME USER 'percona.telemetry.tmp'@'localhost' to 'percona.telemetry'@'localhost';
 --let $restart_parameters = "restart:--percona_telemetry.grace_interval=$grace_interval --percona_telemetry.scrape_interval=$scrape_interval --percona_telemetry.telemetry_root_dir=$telemetry_root_dir"
 --replace_regex /telemetry_root_dir=.*telemetry_dir/telemetry_root_dir=<telemetry_root_dir>/
 --source include/restart_mysqld.inc
+
+#
+# If the user is deleted, it is recreated after the server restart
+#
+DROP USER 'percona.telemetry'@'localhost';
+--let $restart_parameters = "restart:--percona_telemetry.grace_interval=$grace_interval --percona_telemetry.scrape_interval=$scrape_interval --percona_telemetry.telemetry_root_dir=$telemetry_root_dir"
+--replace_regex /telemetry_root_dir=.*telemetry_dir/telemetry_root_dir=<telemetry_root_dir>/
+--source include/restart_mysqld.inc
+
+--let $assert_text = Telemetry user should be recreated
+--let $assert_cond = [SELECT COUNT(*) as Result FROM mysql.user WHERE user = "percona.telemetry";, Result, 1] = 1
+--source include/assert.inc
+
+#
+# If privileges are dropped, they are restored after restart
+#
+REVOKE SELECT ON *.* from 'percona.telemetry'@'localhost';
+SHOW GRANTS FOR 'percona.telemetry'@'localhost';
+--let $restart_parameters = "restart:--percona_telemetry.grace_interval=$grace_interval --percona_telemetry.scrape_interval=$scrape_interval --percona_telemetry.telemetry_root_dir=$telemetry_root_dir"
+--replace_regex /telemetry_root_dir=.*telemetry_dir/telemetry_root_dir=<telemetry_root_dir>/
+--source include/restart_mysqld.inc
+SHOW GRANTS FOR 'percona.telemetry'@'localhost';
+
+#
+# If the server is restarted with --percona-telemetry-disable=1, the user is deleted
+#
+--let $restart_parameters = "restart:--percona-telemetry-disable=1"
+--source include/restart_mysqld.inc
+
+--let $assert_text = Telemetry user should be deleted
+--let $assert_cond = [SELECT COUNT(*) as Result FROM mysql.user WHERE user = "percona.telemetry";, Result, 1] = 0
+--source include/assert.inc
+
 
 # cleanup
 --force-rmdir $telemetry_root_dir

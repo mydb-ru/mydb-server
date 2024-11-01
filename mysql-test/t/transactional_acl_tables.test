@@ -1829,18 +1829,14 @@ CREATE TABLE t2 (a INT);
 GRANT SELECT(a), UPDATE(a), INSERT(a), REFERENCES(a) ON t1 TO u1@h;
 GRANT INSERT(a) ON t2 TO u1@h;
 SELECT host, db, user, table_name, column_name, column_priv FROM mysql.columns_priv;
-SELECT host, db, user, table_name, grantor, table_priv, column_priv FROM mysql.tables_priv
-WHERE NOT (user = 'mysql.session'
-AND table_name IN ('component', 'replication_group_members'));
+SELECT host, db, user, table_name, grantor, table_priv, column_priv FROM mysql.tables_priv;
 DELETE FROM mysql.columns_priv WHERE host = 'h' AND user = 'u1'
 AND table_name = 't1';
 COMMIT;
 REVOKE ALL PRIVILEGES, GRANT OPTION FROM u1@h;
 
 SELECT host, db, user, table_name, column_name, column_priv FROM mysql.columns_priv;
-SELECT host, db, user, table_name, grantor, table_priv, column_priv FROM mysql.tables_priv
-WHERE NOT (user = 'mysql.session'
-AND table_name IN ('component', 'replication_group_members'));
+SELECT host, db, user, table_name, grantor, table_priv, column_priv FROM mysql.tables_priv;
 SHOW GRANTS FOR u1@h;
 
 # Check whether on FLUSH PRIVILEGES the GRANT_TABLE::init handles OUT OF MEMORY
@@ -2186,7 +2182,7 @@ call mtr.add_suppression("mysql.user has no `Event_priv` column at position 28")
 --echo
 --echo # Starting mysqld in the regular mode...
 --echo
---let $restart_parameters =
+--let $restart_parameters = restart:--loose-percona-telemetry-disable=1
 
 --source include/start_mysqld.inc
 
@@ -2223,7 +2219,7 @@ ORDER BY table_name;
 # Filter out ndb_binlog_index to mask differences due to running with or
 # without ndb. Always report check-for-upgrade status as OK, as it depends
 # on the order in which tests are run.
---let $restart_parameters = restart:--upgrade=FORCE
+--let $restart_parameters = restart:--upgrade=FORCE --loose-percona-telemetry-disable=1
 --let $wait_counter= 10000
 --source include/restart_mysqld.inc
 
