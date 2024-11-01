@@ -12,9 +12,11 @@ CREATE TEMPORARY TABLE digest_type(
 --enable_query_log
 --enable_result_log
 
-let $ssl_ver = query_get_value(show status like "Tls_library_version", Value, 1);
+--let $openssl_binary_version_do_not_skip = 1
 
-if (`select "$ssl_ver" like "OpenSSL 1.0.2%"`)
+--let $openssl_binary_version = 1\\.0\\.2
+--source include/have_openssl_binary_version.inc
+if ($openssl_binary_version_match)
 {
   --disable_query_log
   --disable_result_log
@@ -38,7 +40,9 @@ if (`select "$ssl_ver" like "OpenSSL 1.0.2%"`)
   --enable_result_log
 }
 
-if (`select "$ssl_ver" like "OpenSSL 1.1.0%"`)
+--let $openssl_binary_version = 1\\.1\\.0
+--source include/have_openssl_binary_version.inc
+if ($openssl_binary_version_match)
 {
   --disable_query_log
   --disable_result_log
@@ -64,7 +68,9 @@ if (`select "$ssl_ver" like "OpenSSL 1.1.0%"`)
   --enable_result_log
 }
 
-if (`select "$ssl_ver" like "OpenSSL 1.1.1%"`)
+--let $openssl_binary_version = 1\\.1\\.1
+--source include/have_openssl_binary_version.inc
+if ($openssl_binary_version_match)
 {
   --disable_query_log
   --disable_result_log
@@ -99,7 +105,9 @@ if (`select "$ssl_ver" like "OpenSSL 1.1.1%"`)
   --enable_result_log
 }
 
-if (`select "$ssl_ver" like "OpenSSL 3.%"`)
+--let $openssl_binary_version = 3\\.0\\.\\d+
+--source include/have_openssl_binary_version.inc
+if ($openssl_binary_version_match)
 {
   --disable_query_log
   --disable_result_log
