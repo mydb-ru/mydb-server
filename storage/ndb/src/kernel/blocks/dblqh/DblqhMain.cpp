@@ -31407,7 +31407,8 @@ void Dblqh::execDBINFO_SCANREQ(Signal *signal)
       TablerecPtr tabPtr;
       tabPtr.i = tableid;
       ptrAss(tabPtr, tablerec);
-      if (tabPtr.p->tableStatus != Tablerec::NOT_DEFINED)
+      if (tabPtr.p->tableStatus == Tablerec::TABLE_DEFINED ||
+          tabPtr.p->tableStatus == Tablerec::TABLE_READ_ONLY)
       {
         jam();
         // Loop over all fragments for this table.
@@ -31495,7 +31496,8 @@ void Dblqh::execDBINFO_SCANREQ(Signal *signal)
       TablerecPtr tabPtr;
       tabPtr.i = tableid;
       ptrAss(tabPtr, tablerec);
-      if (tabPtr.p->tableStatus != Tablerec::NOT_DEFINED)
+      if (tabPtr.p->tableStatus == Tablerec::TABLE_DEFINED ||
+          tabPtr.p->tableStatus == Tablerec::TABLE_READ_ONLY) 
       {
         jam();
         // Loop over the fragments of this table.
