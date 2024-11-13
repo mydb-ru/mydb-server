@@ -40,7 +40,7 @@ TAR=${TAR:-tar}
 if ! getopt --test
 then
     go_out="$(getopt --options=iqdvj:m:t: \
-        --longoptions=i686,quiet,debug,valgrind,with-jemalloc:,with-zenfs,enable-fipsmode,with-mecab:,with-ssl:,tag: \
+        --longoptions=i686,quiet,debug,valgrind,with-jemalloc:,enable-fipsmode,with-mecab:,with-ssl:,tag: \
         --name="$(basename "$0")" -- "$@")"
     test $? -eq 0 || exit 1
     eval set -- $go_out
@@ -110,12 +110,6 @@ do
         FIPSMODE=1
         WITH_SSL="OFF"
         BUILD_COMMENT="${BUILD_COMMENT:-}-pro"
-        ;;
-    --with-zenfs )
-        shift
-        TARBALL_SUFFIX="-zenfs"
-        WITH_ZENFS="ON"
-        ZENFS_EXTRA="-DROCKSDB_PLUGINS=zenfs -DWITH_ZENFS_UTILITY=ON"
         ;;
     -t | --tag )
         shift

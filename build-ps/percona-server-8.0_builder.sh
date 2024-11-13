@@ -623,6 +623,9 @@ build_srpm(){
         -e "s:percona-mysql-router :percona-mysql-router-pro :g" \
         -e "s:percona-mysql-router-devel$:percona-mysql-router-devel-pro:g" \
         -e "s:percona-server-rocksdb$:percona-server-rocksdb-pro:g" \
+        -e "s:percona-server-test$:percona-server-test-pro:g" \
+        -e "s:percona-server-shared$:percona-server-shared-pro:g" \
+        -e "s:percona-server-shared :percona-server-shared-pro :g" \
         -e "s:Conflicts\:      percona-server-server-pro:Conflicts\:      percona-server-server:g" \
         -e "s:Conflicts\:      percona-server-client-pro:Conflicts\:      percona-server-client:g" \
         -e "s:Conflicts\:      percona-server-test-pro:Conflicts\:      percona-server-test:g" \
@@ -630,6 +633,8 @@ build_srpm(){
         -e "s:Conflicts\:      percona-server-rocksdb-pro:Conflicts\:      percona-server-rocksdb:g" \
         -e "s:Conflicts\:     percona-mysql-router-pro:Conflicts\:     percona-mysql-router:g" \
         -e "s:Conflicts\:      percona-mysql-router-devel-pro:Conflicts\:      percona-mysql-router-devel:g" \
+        -e "s:Conflicts\:      percona-server-test-pro:Conflicts\:      percona-server-test:g" \
+        -e "s:Conflicts\:      percona-server-shared-pro:Conflicts\:      percona-server-shared:g" \
         -e "s:Name\:           percona-server:Name\:           percona-server-pro:g" \
         percona-server.spec
     fi
@@ -785,32 +790,16 @@ build_rpm(){
         source /opt/rh/devtoolset-11/enable
     fi
     if [ ${ARCH} = x86_64 ]; then
-        if [[ ${WITH_ZENFS} == "1" ]]; then
-            if [[ "x${FIPSMODE}" == "x1" ]]; then
-                rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .el${RHEL}" --define "with_mecab ${MECAB_INSTALL_DIR}/usr" --define "with_zenfs 1" --define "enable_fipsmode 1" --rebuild rpmbuild/SRPMS/${SRCRPM}
-            else
-                rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .el${RHEL}" --define "with_mecab ${MECAB_INSTALL_DIR}/usr" --define "with_zenfs 1" --rebuild rpmbuild/SRPMS/${SRCRPM}
-            fi
+        if [[ "x${FIPSMODE}" == "x1" ]]; then
+            rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .el${RHEL}" --define "with_mecab ${MECAB_INSTALL_DIR}/usr" --define "enable_fipsmode 1" --rebuild rpmbuild/SRPMS/${SRCRPM}
         else
-            if [[ "x${FIPSMODE}" == "x1" ]]; then
-                rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .el${RHEL}" --define "with_mecab ${MECAB_INSTALL_DIR}/usr" --define "enable_fipsmode 1" --rebuild rpmbuild/SRPMS/${SRCRPM}
-            else
-                rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .el${RHEL}" --define "with_mecab ${MECAB_INSTALL_DIR}/usr" --rebuild rpmbuild/SRPMS/${SRCRPM}
-            fi
+            rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .el${RHEL}" --define "with_mecab ${MECAB_INSTALL_DIR}/usr" --rebuild rpmbuild/SRPMS/${SRCRPM}
         fi
     else
-        if [[ ${WITH_ZENFS} == "1" ]]; then
-            if [[ "x${FIPSMODE}" == "x1" ]]; then
-                rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .el${RHEL}" --define "with_tokudb 0" --define "with_mecab ${MECAB_INSTALL_DIR}/usr" --define "with_zenfs 1" --define "enable_fipsmode 1" --rebuild rpmbuild/SRPMS/${SRCRPM}
-            else
-                rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .el${RHEL}" --define "with_tokudb 0" --define "with_mecab ${MECAB_INSTALL_DIR}/usr" --define "with_zenfs 1" --rebuild rpmbuild/SRPMS/${SRCRPM}
-            fi
+        if [[ "x${FIPSMODE}" == "x1" ]]; then
+            rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .el${RHEL}" --define "with_tokudb 0" --define "with_mecab ${MECAB_INSTALL_DIR}/usr" --define "enable_fipsmode 1" --rebuild rpmbuild/SRPMS/${SRCRPM}
         else
-            if [[ "x${FIPSMODE}" == "x1" ]]; then
-                rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .el${RHEL}" --define "with_tokudb 0" --define "with_mecab ${MECAB_INSTALL_DIR}/usr" --define "enable_fipsmode 1" --rebuild rpmbuild/SRPMS/${SRCRPM}
-            else
-                rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .el${RHEL}" --define "with_tokudb 0" --define "with_mecab ${MECAB_INSTALL_DIR}/usr" --rebuild rpmbuild/SRPMS/${SRCRPM}
-            fi
+            rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .el${RHEL}" --define "with_tokudb 0" --define "with_mecab ${MECAB_INSTALL_DIR}/usr" --rebuild rpmbuild/SRPMS/${SRCRPM}
         fi
     fi
 
@@ -1108,10 +1097,6 @@ build_tarball(){
     else
         if [[ "${DEBUG}" == 1 ]]; then
             CMAKE_OPTS="-DWITH_ROCKSDB=1" bash -xe ./build-ps/build-binary.sh --debug ${BUILD_PARAMETER}--with-mecab="${MECAB_INSTALL_DIR}/usr" --with-jemalloc=../jemalloc/ ../TARGET
-            DIRNAME="tarball"
-        elif [[ ${WITH_ZENFS} == 1 ]]; then
-            enable_zenfs tarball
-            CMAKE_OPTS="-DMINIMAL_RELWITHDEBINFO=OFF -DWITH_ROCKSDB=1" bash -xe ./build-ps/build-binary.sh ${BUILD_PARAMETER}--with-zenfs --with-mecab="${MECAB_INSTALL_DIR}/usr" --with-jemalloc=../jemalloc/ ../TARGET
             DIRNAME="tarball"
         else
             CMAKE_OPTS="-DMINIMAL_RELWITHDEBINFO=OFF -DWITH_ROCKSDB=1" bash -xe ./build-ps/build-binary.sh ${BUILD_PARAMETER}--with-mecab="${MECAB_INSTALL_DIR}/usr" --with-jemalloc=../jemalloc/ ../TARGET
