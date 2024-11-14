@@ -617,11 +617,14 @@ build_srpm(){
     #
     if [[ "x${FIPSMODE}" == "x1" ]]; then
         sed -i -e "s:percona-server-server$:percona-server-server-pro:g" \
+        -e "s:percona-server-server =:percona-server-server-pro =:g" \
         -e "s:percona-server-client$:percona-server-client-pro:g" \
+        -e "s:percona-server-client =:percona-server-client-pro =:g" \
         -e "s:percona-server-devel$:percona-server-devel-pro:g" \
         -e "s:percona-mysql-router$:percona-mysql-router-pro:g" \
         -e "s:percona-mysql-router :percona-mysql-router-pro :g" \
         -e "s:percona-mysql-router-devel$:percona-mysql-router-devel-pro:g" \
+        -e "s:percona-mysql-router-devel =:percona-mysql-router-devel-pro =:g" \
         -e "s:percona-server-rocksdb$:percona-server-rocksdb-pro:g" \
         -e "s:percona-server-test$:percona-server-test-pro:g" \
         -e "s:percona-server-shared$:percona-server-shared-pro:g" \
