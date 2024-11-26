@@ -1523,6 +1523,7 @@ private:
   void copyTabReq_complete(Signal* signal, TabRecordPtr tabPtr);
 
   void gcpcommitreqLab(Signal *);
+  bool checkAllNgsRepresented(Signal *, const NdbNodeBitmask *nodes);
   void validateCopyGci(Signal *);
   void upgradeAlignCopyGci();
   void copyGciLab(Signal *, CopyGCIReq::CopyReason reason);
