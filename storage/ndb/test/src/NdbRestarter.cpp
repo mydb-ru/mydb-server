@@ -219,6 +219,7 @@ NdbRestarter::getNodeGroups(Vector<int>& node_groups, int * max_alive_replicas_p
     return -1;
   }
 
+  int n_groups = 0;
   Vector<int> node_group_replicas;
   for (unsigned i = 0; i < ndbNodes.size(); i++)
   {
@@ -238,6 +239,7 @@ NdbRestarter::getNodeGroups(Vector<int>& node_groups, int * max_alive_replicas_p
     if (node_group_replicas[node_group] == 0)
     {
       node_groups.push_back(node_group);
+      n_groups++;
     }
 
     node_group_replicas[node_group]++;
@@ -256,7 +258,7 @@ NdbRestarter::getNodeGroups(Vector<int>& node_groups, int * max_alive_replicas_p
     }
     *max_alive_replicas_ptr = max_alive_replicas;
   }
-  return 0;
+  return n_groups;
 }
 
 int NdbRestarter::getNumNodeGroups() {

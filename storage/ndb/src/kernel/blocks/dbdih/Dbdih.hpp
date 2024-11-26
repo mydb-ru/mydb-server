@@ -1523,6 +1523,8 @@ private:
   void copyTabReq_complete(Signal* signal, TabRecordPtr tabPtr);
 
   void gcpcommitreqLab(Signal *);
+  void validateCopyGci(Signal *);
+  void upgradeAlignCopyGci();
   void copyGciLab(Signal *, CopyGCIReq::CopyReason reason);
   void storeNewLcpIdLab(Signal *);
   void startLcpRoundLoopLab(Signal *, Uint32 startTableId, Uint32 startFragId);
@@ -2162,6 +2164,7 @@ private:
       Uint32 m_new_gci;
       Uint32 m_time_between_gcp;   /* Delay between global checkpoints */
       NDB_TICKS m_start_time;
+      NdbNodeBitmask m_saveConfNodes;
     } m_master;
   } m_gcp_save;
 
