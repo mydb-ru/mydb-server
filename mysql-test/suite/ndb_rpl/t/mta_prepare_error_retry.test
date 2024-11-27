@@ -123,7 +123,7 @@ eval CHANGE REPLICATION SOURCE TO
 --source include/start_slave.inc
 
 --echo # Wait for replication error
-let $slave_sql_errno= 1180;
+let $slave_sql_errno= 1205;
 --source include/wait_for_slave_sql_error.inc
 
 --replace_regex /end_log_pos [0-9]*/end_log_pos NNN/ /Worker [0-9]* failed/Worker NNN failed/
