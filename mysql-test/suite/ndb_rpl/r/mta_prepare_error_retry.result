@@ -79,17 +79,17 @@ CHANGE REPLICATION SOURCE TO
 IGNORE_SERVER_IDS = (<last_server_id>);
 include/rpl/start_replica.inc
 # Wait for replication error
-include/rpl/wait_for_applier_error.inc [errno=1180]
+include/rpl/wait_for_applier_error.inc [errno=1205]
 SELECT LAST_ERROR_NUMBER, LAST_ERROR_MESSAGE,
 APPLYING_TRANSACTION_RETRIES_COUNT
 FROM performance_schema.replication_applier_status_by_worker
 WHERE LAST_ERROR_NUMBER != 0;
-LAST_ERROR_NUMBER	1180
-LAST_ERROR_MESSAGE	Worker NNN failed executing transaction 'ANONYMOUS' at source log master-bin.000002, end_log_pos NNN; Error 'Got error 125 - 'Transaction has been rolled back' during COMMIT' on query. Default database: ''. Query: 'COMMIT'
-APPLYING_TRANSACTION_RETRIES_COUNT	0
+LAST_ERROR_NUMBER	1205
+LAST_ERROR_MESSAGE	Worker NNN failed executing transaction 'ANONYMOUS' at source log master-bin.000002, end_log_pos NNN; Lock wait timeout exceeded; try restarting transaction
+APPLYING_TRANSACTION_RETRIES_COUNT	3
 SELECT LAST_ERROR_NUMBER, LAST_ERROR_MESSAGE
 FROM performance_schema.replication_applier_status_by_coordinator;
-LAST_ERROR_NUMBER	1180
+LAST_ERROR_NUMBER	1205
 LAST_ERROR_MESSAGE	Coordinator stopped because there were error(s) in the worker(s). The most recent failure being: Worker NNN failed executing transaction 'ANONYMOUS' at source log master-bin.000002, end_log_pos NNN. See error log and/or performance_schema.replication_applier_status_by_worker table for more details about this failure or others, if any.
 SELECT id, what FROM test_multi_server_id ORDER BY id;
 id	what
