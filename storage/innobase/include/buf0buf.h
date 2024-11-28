@@ -1728,6 +1728,8 @@ class buf_page_t {
 #endif /* !UNIV_HOTBACKUP */
 };
 
+#ifdef BTR_CUR_AHI
+
 /** Structure used by AHI to contain information on record prefixes to be
 considered in hash index subsystem. It is meant for using as a single 64bit
 atomic value, thus it needs to be aligned properly. */
@@ -1754,6 +1756,8 @@ struct alignas(alignof(uint64_t)) btr_search_prefix_info_t {
     return !(*this == other);
   }
 };
+
+#endif /* BTR_CUR_AHI */
 
 /** The buffer control block structure */
 struct buf_block_t {
@@ -1797,6 +1801,8 @@ struct buf_block_t {
 #endif /* UNIV_DEBUG */
 
   /** @} */
+
+#ifdef BTR_CUR_AHI
 
   /** Structure that holds most AHI-related fields. */
   struct ahi_t {
@@ -1889,6 +1895,9 @@ struct buf_block_t {
   8byte aligned 8byte long space, so basically it saves us 8bytes of the object
   that is used in high volumes. */
   std::atomic<uint32_t> n_hash_helps;
+
+#endif /* BTR_CUR_AHI */
+
   /** true if block has been made dirty without acquiring X/SX latch as the
   block belongs to temporary tablespace and block is always accessed by a
   single thread. */

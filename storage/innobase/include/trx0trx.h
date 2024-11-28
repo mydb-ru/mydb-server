@@ -1035,6 +1035,7 @@ struct trx_t {
                         the transaction; in that case we must
                         flush the log in
                         trx_commit_complete_for_mysql() */
+#ifdef BTR_CUR_AHI
   bool has_search_latch;
   /*!< true if this trx has latched the
   search system latch in S-mode.
@@ -1042,6 +1043,7 @@ struct trx_t {
   row_search_mvcc, the btr search latch
   must has been released before exiting,
   and this flag would be set to false */
+#endif
   trx_dict_op_t dict_operation; /**< @see enum trx_dict_op_t */
 
   bool ddl_operation;  /*!< True if this trx involves dd table

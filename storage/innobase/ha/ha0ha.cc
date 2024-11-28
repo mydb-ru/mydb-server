@@ -74,7 +74,9 @@ hash_table_t *ib_create(size_t n, latch_id_t id, size_t n_sync_obj,
 void ha_clear(hash_table_t *table) /*!< in, own: hash table */
 {
   ut_ad(table->magic_n == hash_table_t::HASH_TABLE_MAGIC_N);
+#ifdef BTR_CUR_AHI
   ut_ad(!table->adaptive || btr_search_own_all(RW_LOCK_X));
+#endif
   ut_ad(table->type == HASH_TABLE_SYNC_RW_LOCK);
   ut_ad(table->heap == nullptr);
 
@@ -100,6 +102,7 @@ void ha_clear(hash_table_t *table) /*!< in, own: hash table */
 /** Verify if latch corresponding to the hash table is x-latched
 @param[in]      table           hash table */
 static void ha_btr_search_latch_x_locked(const hash_table_t *table) {
+#ifdef BTR_CUR_AHI
   ulong i;
   for (i = 0; i < btr_ahi_parts; ++i) {
     if (btr_search_sys->parts[i].hash_table == table) {
@@ -109,6 +112,7 @@ static void ha_btr_search_latch_x_locked(const hash_table_t *table) {
 
   ut_ad(i < btr_ahi_parts);
   ut_ad(rw_lock_own(&btr_search_sys->parts[i].latch, RW_LOCK_X));
+#endif
 }
 #endif /* UNIV_DEBUG */
 

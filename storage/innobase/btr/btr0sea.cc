@@ -38,6 +38,8 @@ this program; if not, write to the Free Software Foundation, Inc.,
  Created 2/17/1996 Heikki Tuuri
  *************************************************************************/
 
+#ifdef BTR_CUR_AHI
+
 #include "btr0sea.h"
 
 #include <sys/types.h>
@@ -2061,3 +2063,16 @@ bool btr_search_validate() {
 }
 
 #endif /* defined UNIV_AHI_DEBUG || defined UNIV_DEBUG */
+
+#else /* BTR_CUR_AHI */
+
+#include "btr0sea.h"
+
+/* These are only used by the corresponding system variables for
+compatibility */
+
+ulong btr_ahi_parts = 8;
+
+bool srv_btr_search_enabled = false;
+
+#endif /* BTR_CUR_AHI */

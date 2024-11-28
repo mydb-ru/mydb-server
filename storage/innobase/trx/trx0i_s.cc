@@ -510,7 +510,11 @@ thd_done:
     row->trx_foreign_key_error = nullptr;
   }
 
+#ifdef BTR_CUR_AHI
   row->trx_has_search_latch = trx->has_search_latch;
+#else
+  row->trx_has_search_latch = false;
+#endif
 
   row->trx_is_read_only = trx->read_only;
 

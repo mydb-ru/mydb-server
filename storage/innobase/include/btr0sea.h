@@ -42,6 +42,8 @@ this program; if not, write to the Free Software Foundation, Inc.,
 #include "mtr0mtr.h"
 #include "rem0rec.h"
 
+#ifdef BTR_CUR_AHI
+
 /** The search info struct in an index */
 struct btr_search_t {
   /** Number of blocks in this index tree that have search index built i.e.
@@ -344,6 +346,14 @@ constexpr uint32_t BTR_SEARCH_ON_PATTERN_LIMIT = 3;
 /** Limit of consecutive searches for trying a search shortcut using
 the hash index */
 constexpr uint32_t BTR_SEARCH_ON_HASH_LIMIT = 3;
+
+#else
+
+struct btr_search_t {
+  buf_block_t *root_guess;
+};
+
+#endif /* BTR_CUR_AHI */
 
 #include "btr0sea.ic"
 

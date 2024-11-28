@@ -3464,12 +3464,16 @@ static void fseg_free_page_low(fseg_inode_t *seg_inode,
   ut_ad(!((page_offset(seg_inode) - FSEG_ARR_OFFSET) % FSEG_INODE_SIZE));
   ut_d(fsp_space_modify_check(page_id.space(), mtr));
 
+#ifdef BTR_CUR_AHI
+
   /* Drop search system page hash index if the page is found in
   the pool and is hashed */
 
   if (ahi) {
     btr_search_drop_page_hash_when_freed(page_id, page_size);
   }
+
+#endif /* BTR_CUR_AHI */
 
   descr =
       xdes_get_descriptor(page_id.space(), page_id.page_no(), page_size, mtr);

@@ -1523,12 +1523,16 @@ bool srv_printf_innodb_monitor(FILE *file, bool nowait, ulint *trx_start_pos,
     ibuf_print(file);
   }
 
+#ifdef BTR_CUR_AHI
   for (ulint i = 0; i < btr_ahi_parts; ++i) {
     auto &part = btr_search_sys->parts[i];
     rw_lock_s_lock(&part.latch, UT_LOCATION_HERE);
     ha_print_info(file, part.hash_table);
     rw_lock_s_unlock(&part.latch);
   }
+#else
+  fputs("Adaptive Hash Index is disabled at compile time\n", file);
+#endif
 
   fprintf(file, "%.2f hash searches/s, %.2f non-hash searches/s\n",
           (btr_cur_n_sea - btr_cur_n_sea_old) / time_elapsed,

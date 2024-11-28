@@ -129,7 +129,11 @@ dberr_t RTree_inserter::batch_insert(trx_id_t trx_id,
     rtr_info_update_btr(&cursor, &rtr_info);
 
     btr_cur_search_to_nth_level(m_index, 0, dtuple, PAGE_CUR_RTREE_INSERT,
-                                BTR_MODIFY_LEAF, &cursor, 0, __FILE__, __LINE__,
+                                BTR_MODIFY_LEAF, &cursor,
+#ifdef BTR_CUR_AHI
+                                0,
+#endif
+                                __FILE__, __LINE__,
                                 &mtr);
 
     /* Update MBR in parent entry, change search mode to BTR_MODIFY_TREE */
@@ -145,7 +149,11 @@ dberr_t RTree_inserter::batch_insert(trx_id_t trx_id,
       mtr.start();
 
       btr_cur_search_to_nth_level(m_index, 0, dtuple, PAGE_CUR_RTREE_INSERT,
-                                  BTR_MODIFY_TREE, &cursor, 0, __FILE__,
+                                  BTR_MODIFY_TREE, &cursor,
+#ifdef BTR_CUR_AHI
+                                  0,
+#endif
+                                  __FILE__,
                                   __LINE__, &mtr);
     }
 
@@ -166,7 +174,11 @@ dberr_t RTree_inserter::batch_insert(trx_id_t trx_id,
       rtr_info_update_btr(&cursor, &rtr_info);
 
       btr_cur_search_to_nth_level(m_index, 0, dtuple, PAGE_CUR_RTREE_INSERT,
-                                  BTR_MODIFY_TREE, &cursor, 0, __FILE__,
+                                  BTR_MODIFY_TREE, &cursor,
+#ifdef BTR_CUR_AHI
+                                  0,
+#endif
+                                  __FILE__,
                                   __LINE__, &mtr);
 
       err = btr_cur_pessimistic_insert(flag, &cursor, &offsets, &m_dml_heap,

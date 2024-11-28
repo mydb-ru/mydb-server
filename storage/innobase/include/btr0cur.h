@@ -157,7 +157,9 @@ void btr_cur_search_to_nth_level(
                        to protect the record! */
     btr_cur_t *cursor,     /*!< in/out: tree cursor; the cursor page is
                            s- or x-latched, but see also above! */
+#ifdef BTR_CUR_AHI
     ulint has_search_latch,
+#endif
     /*!< in: latch mode the caller
     currently has on search system:
     RW_S_LATCH, or 0 */
@@ -708,6 +710,8 @@ struct btr_cur_t {
   /** Number of matched bytes to the left at the time cursor positioned; only
   used internally in searches: not defined after the search. */
   ulint low_bytes{0};
+
+#ifdef BTR_CUR_AHI
   /* Structure for AHI-related fields used in a cursor. */
   struct {
     /** AHI prefix used in a hash search if flag is any of BTR_CUR_HASH,
@@ -723,6 +727,9 @@ struct btr_cur_t {
     BTR_CUR_HASH_FAIL or BTR_CUR_HASH_NOT_ATTEMPTED. */
     uint64_t ahi_hash_value{0};
   } ahi;
+
+#endif /* BTR_CUR_AHI */
+
   /** @} */
 
   /** In estimating the number of rows in range, we store in this array

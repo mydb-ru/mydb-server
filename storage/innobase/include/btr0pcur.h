@@ -156,7 +156,10 @@ struct btr_pcur_t {
   @param[in]        location      Location where called */
   void open_no_init(dict_index_t *index, const dtuple_t *tuple,
                     page_cur_mode_t mode, ulint latch_mode,
-                    ulint has_search_latch, mtr_t *mtr, ut::Location location);
+#ifdef BTR_CUR_AHI
+                    ulint has_search_latch,
+#endif
+                    mtr_t *mtr, ut::Location location);
 
   /** If mode is PAGE_CUR_G or PAGE_CUR_GE, opens a persistent cursor
   on the first user record satisfying the search condition, in the case
@@ -540,7 +543,10 @@ inline void btr_pcur_t::open(dict_index_t *index, ulint level,
              ? true
              : false));
   } else {
-    btr_cur_search_to_nth_level(index, level, tuple, mode, latch_mode, cur, 0,
+    btr_cur_search_to_nth_level(index, level, tuple, mode, latch_mode, cur,
+#ifdef BTR_CUR_AHI
+                                0,
+#endif
                                 location.filename, location.line, mtr);
   }
 
@@ -597,7 +603,10 @@ inline bool btr_pcur_t::set_random_position(dict_index_t *index,
 
 inline void btr_pcur_t::open_no_init(dict_index_t *index, const dtuple_t *tuple,
                                      page_cur_mode_t mode, ulint latch_mode,
-                                     ulint has_search_latch, mtr_t *mtr,
+#ifdef BTR_CUR_AHI
+                                     ulint has_search_latch,
+#endif
+                                     mtr_t *mtr,
                                      ut::Location location) {
   m_latch_mode = BTR_LATCH_MODE_WITHOUT_INTENTION(latch_mode);
 
@@ -615,7 +624,11 @@ inline void btr_pcur_t::open_no_init(dict_index_t *index, const dtuple_t *tuple,
         mtr, ((latch_mode & BTR_MODIFY_LEAF) ? true : false));
   } else {
     btr_cur_search_to_nth_level(index, m_read_level, tuple, mode, latch_mode,
-                                cur, has_search_latch, location.filename,
+                                cur,
+#ifdef BTR_CUR_AHI
+                                has_search_latch,
+#endif
+                                location.filename,
                                 location.line, mtr);
   }
 

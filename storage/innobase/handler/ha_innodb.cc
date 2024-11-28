@@ -805,7 +805,9 @@ static PSI_mutex_info all_innodb_mutexes[] = {
 performance schema instrumented if "UNIV_PFS_RWLOCK"
 is defined */
 static PSI_rwlock_info all_innodb_rwlocks[] = {
+#ifdef BTR_CUR_AHI
     PSI_RWLOCK_KEY(btr_search_latch, 0, PSI_DOCUMENT_ME),
+#endif
 #ifndef PFS_SKIP_BUFFER_MUTEX_RWLOCK
     PSI_RWLOCK_KEY(buf_block_lock, 0, PSI_DOCUMENT_ME),
 #endif /* !PFS_SKIP_BUFFER_MUTEX_RWLOCK */
@@ -2063,11 +2065,13 @@ static inline void innobase_srv_conc_exit_innodb(row_prebuilt_t *prebuilt) {
   }
 
   trx_t *trx = prebuilt->trx;
+#ifdef BTR_CUR_AHI
 #ifdef UNIV_DEBUG
   btrsea_sync_check check(trx->has_search_latch);
 
   ut_ad(!sync_check_iterate(check));
 #endif /* UNIV_DEBUG */
+#endif /* BTR_CUR_AHI */
 
   /* This is to avoid making an unnecessary function call. */
   if (trx->declared_to_be_inside_innodb &&
@@ -2080,11 +2084,13 @@ static inline void innobase_srv_conc_exit_innodb(row_prebuilt_t *prebuilt) {
 static inline void innobase_srv_conc_force_exit_innodb(
     trx_t *trx) /*!< in: transaction handle */
 {
+#ifdef BTR_CUR_AHI
 #ifdef UNIV_DEBUG
   btrsea_sync_check check(trx->has_search_latch);
 
   ut_ad(!sync_check_iterate(check));
 #endif /* UNIV_DEBUG */
+#endif /* BTR_CUR_AHI */
 
   /* This is to avoid making an unnecessary function call. */
   if (trx->declared_to_be_inside_innodb) {
@@ -2164,6 +2170,7 @@ void thd_set_lock_wait_time(THD *thd,
 }
 
 const char *thd_innodb_tmpdir(THD *thd) {
+#ifdef BTR_CUR_AHI
 #ifdef UNIV_DEBUG
   if (thd != nullptr) {
     auto trx = thd_to_trx(thd);
@@ -2173,6 +2180,7 @@ const char *thd_innodb_tmpdir(THD *thd) {
     ut_ad(!sync_check_iterate(check));
   }
 #endif /* UNIV_DEBUG */
+#endif /* BTR_CUR_AHI */
 
   const char *tmp_dir = THDVAR(thd, tmpdir);
 

@@ -3513,11 +3513,13 @@ static void ibuf_insert_to_index_page(
   ut_ad(!dict_index_is_online_ddl(index));  // this is an ibuf_dummy index
   ut_ad(ibuf_inside(mtr));
   ut_ad(dtuple_check_typed(entry));
+#ifdef BTR_CUR_AHI
   /* A change buffer merge must occur before users are granted
   any access to the page. No adaptive hash index entries may
   point to a freshly read page. */
   ut_ad(!block->ahi.index);
   block->ahi.assert_empty();
+#endif
 
   if (UNIV_UNLIKELY(dict_table_is_comp(index->table) != page_is_comp(page))) {
     ib::warn(ER_IB_MSG_611)

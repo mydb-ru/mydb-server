@@ -1277,8 +1277,6 @@ static bool dict_table_can_be_evicted(
   ut_a(table->referenced_set.empty());
 
   if (table->get_ref_count() == 0) {
-    const dict_index_t *index;
-
     /* The transaction commit and rollback are called from
     outside the handler interface. This means that there is
     a window where the table->n_ref_count can be zero but
@@ -1287,6 +1285,10 @@ static bool dict_table_can_be_evicted(
     if (lock_table_has_locks(table)) {
       return false;
     }
+
+#ifdef BTR_CUR_AHI
+    const dict_index_t *index;
+
 
     for (index = table->first_index(); index != nullptr;
          index = index->next()) {
@@ -1306,6 +1308,8 @@ static bool dict_table_can_be_evicted(
         return false;
       }
     }
+
+#endif /* BTR_CUR_AHI */
 
     return true;
   }
@@ -5493,7 +5497,11 @@ std::vector<byte> DDTableBuffer::get(table_id_t id, uint64_t *version) {
   mtr.start();
 
   btr_cur_search_to_nth_level(m_index, 0, m_search_tuple, PAGE_CUR_LE,
-                              BTR_SEARCH_LEAF, &cursor, 0, __FILE__, __LINE__,
+                              BTR_SEARCH_LEAF, &cursor,
+#ifdef BTR_CUR_AHI
+                              0,
+#endif
+                              __FILE__, __LINE__,
                               &mtr);
 
   if (cursor.low_match == dtuple_get_n_fields(m_search_tuple)) {

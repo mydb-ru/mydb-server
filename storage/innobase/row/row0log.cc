@@ -3407,7 +3407,11 @@ static void row_log_apply_op_low(
   scanned. */
   btr_cur_search_to_nth_level(
       index, 0, entry, PAGE_CUR_LE,
-      has_index_lock ? BTR_MODIFY_TREE : BTR_MODIFY_LEAF, &cursor, 0, __FILE__,
+      has_index_lock ? BTR_MODIFY_TREE : BTR_MODIFY_LEAF, &cursor,
+#ifdef BTR_CUR_AHI
+      0,
+#endif
+      __FILE__,
       __LINE__, &mtr);
 
   ut_ad(dict_index_get_n_unique(index) > 0);
@@ -3454,7 +3458,11 @@ static void row_log_apply_op_low(
           mtr_start(&mtr);
 
           btr_cur_search_to_nth_level(index, 0, entry, PAGE_CUR_LE,
-                                      BTR_MODIFY_TREE, &cursor, 0, __FILE__,
+                                      BTR_MODIFY_TREE, &cursor,
+#ifdef BTR_CUR_AHI
+                                      0,
+#endif
+                                      __FILE__,
                                       __LINE__, &mtr);
 
           /* No other thread than the current one
@@ -3548,7 +3556,11 @@ static void row_log_apply_op_low(
           mtr_start(&mtr);
 
           btr_cur_search_to_nth_level(index, 0, entry, PAGE_CUR_LE,
-                                      BTR_MODIFY_TREE, &cursor, 0, __FILE__,
+                                      BTR_MODIFY_TREE, &cursor,
+#ifdef BTR_CUR_AHI
+                                      0,
+#endif
+                                      __FILE__,
                                       __LINE__, &mtr);
         }
 

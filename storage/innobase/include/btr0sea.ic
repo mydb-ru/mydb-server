@@ -36,6 +36,8 @@ this program; if not, write to the Free Software Foundation, Inc.,
 #include "dict0mem.h"
 #include "sync0rw.h"
 
+#ifdef BTR_CUR_AHI
+
 /** Updates the search info statistics following a search in B-tree that was
 performed not using or not finding row with the AHI index. It may decide to try
 to update the searched record on which the supplied cursor in positioned at, or
@@ -157,3 +159,48 @@ static inline btr_search_sys_t::search_part_t &btr_get_search_part(
 static inline rw_lock_t *btr_get_search_latch(const dict_index_t *index) {
   return &btr_get_search_part(index).latch;
 }
+
+#else /* BTR_CUR_AHI */
+
+namespace {
+
+inline bool btr_search_validate() { return true; }
+
+inline void btr_search_enable() {}
+inline bool btr_search_disable() { return false; }
+
+inline void btr_search_update_hash_on_move(buf_block_t *, buf_block_t *,
+                                           dict_index_t *) {}
+inline void btr_search_update_hash_on_insert(btr_cur_t *) {}
+inline void btr_search_update_hash_on_delete(btr_cur_t *) {}
+
+inline void btr_search_drop_page_hash_index(buf_block_t *, bool force = false) {
+}
+inline void btr_search_drop_page_hash_when_freed(const page_id_t &,
+                                                 const page_size_t &) {}
+
+inline btr_search_t *btr_search_info_create(mem_heap_t *heap) {
+  btr_search_t *info;
+
+  info = (btr_search_t *)mem_heap_alloc(heap, sizeof(btr_search_t));
+
+  info->root_guess = nullptr;
+
+  return info;
+}
+
+inline void btr_search_info_update(btr_cur_t *) {}
+
+inline void btr_search_sys_free() {}
+inline void btr_search_sys_create(ulint) {}
+inline void btr_search_sys_resize(ulint) {}
+
+inline void btr_search_await_no_reference(dict_table_t *, dict_index_t *,
+                                          bool) {}
+
+inline void btr_drop_ahi_for_table(dict_table_t *) {}
+inline void btr_drop_ahi_for_index(const dict_index_t *) {}
+
+}  // namespace
+
+#endif /* BTR_CUR_AHI */

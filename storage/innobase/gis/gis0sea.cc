@@ -528,7 +528,10 @@ void rtr_pcur_open_low(dict_index_t *index, ulint level, const dtuple_t *tuple,
   }
 
   btr_cur_search_to_nth_level(index, level, tuple, mode, latch_mode, btr_cursor,
-                              0, location.filename, location.line, mtr);
+#ifdef BTR_CUR_AHI
+                              0,
+#endif
+                              location.filename, location.line, mtr);
   cursor->m_pos_state = BTR_PCUR_IS_POSITIONED;
 
   cursor->m_trx_if_known = nullptr;
@@ -780,7 +783,11 @@ void rtr_get_father_node(
   if (sea_cur && sea_cur->tree_height == level) {
     /* root split, and search the new root */
     btr_cur_search_to_nth_level(index, level, tuple, PAGE_CUR_RTREE_LOCATE,
-                                BTR_CONT_MODIFY_TREE, btr_cur, 0, __FILE__,
+                                BTR_CONT_MODIFY_TREE, btr_cur,
+#ifdef BTR_CUR_AHI
+                                0,
+#endif
+                                __FILE__,
                                 __LINE__, mtr);
 
   } else {
@@ -789,7 +796,11 @@ void rtr_get_father_node(
     ut_ad(!sea_cur);
 
     btr_cur_search_to_nth_level(index, level, tuple, PAGE_CUR_RTREE_LOCATE,
-                                BTR_CONT_MODIFY_TREE, btr_cur, 0, __FILE__,
+                                BTR_CONT_MODIFY_TREE, btr_cur,
+#ifdef BTR_CUR_AHI
+                                0,
+#endif
+                                __FILE__,
                                 __LINE__, mtr);
 
     rec = btr_cur_get_rec(btr_cur);
@@ -1394,11 +1405,13 @@ static void rtr_copy_buf(matched_rec_t *matches, const buf_block_t *block) {
   /* Skip buf_block_t::lock as it was already initialized by rtr_create_rtr_info
    */
   ut_ad(rw_lock_validate(&matches->block.lock));
+#ifdef BTR_CUR_AHI
   matches->block.n_hash_helps.store(block->n_hash_helps.load());
   matches->block.ahi.recommended_prefix_info.store(
       block->ahi.recommended_prefix_info.load());
   matches->block.ahi.prefix_info.store(block->ahi.prefix_info.load());
   matches->block.ahi.index.store(block->ahi.index.load());
+#endif /* BTR_CUR_AHI */
   matches->block.made_dirty_with_no_latch = block->made_dirty_with_no_latch;
   matches->block.modify_clock = block->modify_clock;
 

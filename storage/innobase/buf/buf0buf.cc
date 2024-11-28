@@ -775,9 +775,11 @@ static void buf_block_init(
 {
   UNIV_MEM_DESC(frame, UNIV_PAGE_SIZE);
 
+#ifdef BTR_CUR_AHI
   /* This function should only be executed at database startup or by
   buf_pool_resize(). Either way, adaptive hash index must not exist. */
   block->ahi.assert_empty_on_init();
+#endif
 
   block->frame = frame;
 
@@ -793,7 +795,9 @@ static void buf_block_init(
 
   ut_d(block->page.file_page_was_freed = false);
 
+#ifdef BTR_CUR_AHI
   block->ahi.index = nullptr;
+#endif
   block->made_dirty_with_no_latch = false;
 
   ut_d(block->page.in_page_hash = false);
@@ -1686,6 +1690,7 @@ static bool buf_page_realloc(buf_pool_t *buf_pool, buf_block_t *block) {
 
     /* Set other flags of buf_block_t */
 
+#ifdef BTR_CUR_AHI
     /* This code should only be executed by buf_pool_resize(),
     while the adaptive hash index is disabled. */
     block->ahi.assert_empty();
@@ -1694,6 +1699,7 @@ static bool buf_page_realloc(buf_pool_t *buf_pool, buf_block_t *block) {
     new_block->ahi.index = nullptr;
     new_block->n_hash_helps = 0;
     new_block->ahi.recommended_prefix_info = {0, 1, true};
+#endif
 
     rw_lock_x_unlock(hash_lock);
     mutex_exit(&block->mutex);
@@ -2700,6 +2706,8 @@ void buf_pool_clear_hash_index(void) {
   bool pause_before_processing = DBUG_EVALUATE_IF(
       "buf_pool_clear_hash_index_check_other_blocks", true, false);
 
+#ifdef BTR_CUR_AHI
+
   for (ulong p = 0; p < srv_buf_pool_instances; p++) {
     buf_pool_t *const buf_pool = buf_pool_from_array(p);
     buf_chunk_t *const chunks = buf_pool->chunks;
@@ -2765,6 +2773,8 @@ void buf_pool_clear_hash_index(void) {
             continue;
         }
 
+#ifdef BTR_CUR_AHI
+
 #if defined UNIV_AHI_DEBUG || defined UNIV_DEBUG
         block->ahi.n_pointers = 0;
 #endif /* UNIV_AHI_DEBUG || UNIV_DEBUG */
@@ -2772,9 +2782,13 @@ void buf_pool_clear_hash_index(void) {
         n_pointers is set to 0, so it synchronizes correctly with check in
         buf_block_t::ahi_t::validate(). */
         btr_search_set_block_not_cached(block);
+
+#endif /* BTR_CUR_AHI */
       }
     }
   }
+
+#endif /* BTR_CUR_AHI */
 
   /* Main intent was to identify target block. Due to rare race conditions, such
   block is not found. To prevent timeout, unblock in case target block is not
@@ -3423,14 +3437,16 @@ got_block:
 static inline void buf_block_init_low(
     buf_block_t *block) /*!< in: block to init */
 {
+  block->made_dirty_with_no_latch = false;
+#ifdef BTR_CUR_AHI
   /* No adaptive hash index entries may point to a previously
   unused (and now freshly allocated) block. */
   block->ahi.assert_empty_on_init();
   block->ahi.index = nullptr;
-  block->made_dirty_with_no_latch = false;
 
   block->n_hash_helps = 0;
   block->ahi.recommended_prefix_info = {0, 1, true};
+#endif /* BTR_CUR_AHI */
   ut_a(block->page.get_space() != nullptr);
 }
 #endif /* !UNIV_HOTBACKUP */

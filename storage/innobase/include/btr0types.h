@@ -49,9 +49,17 @@ struct btr_cur_t;
 /** B-tree search information for the adaptive hash index */
 struct btr_search_t;
 
+#ifdef BTR_CUR_AHI
+
 /** Is search system enabled.
 Search system is protected by array of latches. */
 extern std::atomic_bool btr_search_enabled;
+
+#else /* BTR_CUR_AHI */
+
+static constexpr bool btr_search_enabled = false;
+
+#endif
 
 /** Number of adaptive hash index partition. */
 extern ulong btr_ahi_parts;

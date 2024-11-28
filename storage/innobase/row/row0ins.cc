@@ -1094,7 +1094,10 @@ func_exit:
 
     ref = row_build_row_ref(ROW_COPY_POINTERS, index, rec, tmp_heap);
     cascade->pcur->open_no_init(clust_index, ref, PAGE_CUR_LE, BTR_SEARCH_LEAF,
-                                0, mtr, UT_LOCATION_HERE);
+#ifdef BTR_CUR_AHI
+                                0,
+#endif
+                                mtr, UT_LOCATION_HERE);
 
     clust_rec = cascade->pcur->get_rec();
     clust_block = cascade->pcur->get_block();
@@ -2885,7 +2888,11 @@ dberr_t row_ins_sec_index_entry_low(uint32_t flags, ulint mode,
     rtr_info_update_btr(&cursor, &rtr_info);
 
     btr_cur_search_to_nth_level(index, 0, entry, PAGE_CUR_RTREE_INSERT,
-                                search_mode, &cursor, 0, __FILE__, __LINE__,
+                                search_mode, &cursor,
+#ifdef BTR_CUR_AHI
+                                0,
+#endif
+                                __FILE__, __LINE__,
                                 &mtr);
 
     if (mode == BTR_MODIFY_LEAF && rtr_info.mbr_adj) {
@@ -2901,7 +2908,11 @@ dberr_t row_ins_sec_index_entry_low(uint32_t flags, ulint mode,
       search_mode |= BTR_MODIFY_TREE;
 
       btr_cur_search_to_nth_level(index, 0, entry, PAGE_CUR_RTREE_INSERT,
-                                  search_mode, &cursor, 0, __FILE__, __LINE__,
+                                  search_mode, &cursor,
+#ifdef BTR_CUR_AHI
+                                  0,
+#endif
+                                  __FILE__, __LINE__,
                                   &mtr);
       mode = BTR_MODIFY_TREE;
     }
@@ -2916,7 +2927,11 @@ dberr_t row_ins_sec_index_entry_low(uint32_t flags, ulint mode,
       ut_ad(cursor.page_cur.block->made_dirty_with_no_latch);
     } else {
       btr_cur_search_to_nth_level(index, 0, entry, PAGE_CUR_LE, search_mode,
-                                  &cursor, 0, __FILE__, __LINE__, &mtr);
+                                  &cursor,
+#ifdef BTR_CUR_AHI
+                                  0,
+#endif
+                                  __FILE__, __LINE__, &mtr);
     }
   }
 
@@ -2999,7 +3014,10 @@ dberr_t row_ins_sec_index_entry_low(uint32_t flags, ulint mode,
     } else {
       btr_cur_search_to_nth_level(
           index, 0, entry, PAGE_CUR_LE,
-          (search_mode & ~(BTR_INSERT | BTR_IGNORE_SEC_UNIQUE)), &cursor, 0,
+          (search_mode & ~(BTR_INSERT | BTR_IGNORE_SEC_UNIQUE)), &cursor,
+#ifdef BTR_CUR_AHI
+          0,
+#endif
           __FILE__, __LINE__, &mtr);
     }
   }

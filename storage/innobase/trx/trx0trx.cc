@@ -305,7 +305,9 @@ struct TrxFactory {
     ut_a(trx->lock.wait_thr == nullptr);
     ut_a(trx->lock.blocking_trx.load() == nullptr);
 
+#ifdef BTR_CUR_AHI
     ut_a(!trx->has_search_latch);
+#endif
 
     ut_a(trx->dict_operation_lock_mode == 0);
 
@@ -368,7 +370,9 @@ struct TrxFactory {
     ut_a(trx->lock.wait_lock == nullptr);
     ut_a(trx->lock.blocking_trx.load() == nullptr);
 
+#ifdef BTR_CUR_AHI
     ut_a(!trx->has_search_latch);
+#endif
 
     ut_a(trx->dict_operation_lock_mode == 0);
 
@@ -2701,10 +2705,12 @@ void trx_print_low(FILE *f,
             (ulong)n_trx_locks, (ulong)heap_size, (ulong)n_rec_locks);
   }
 
+#ifdef BTR_CUR_AHI
   if (trx->has_search_latch) {
     newline = true;
     fputs(", holds adaptive hash latch", f);
   }
+#endif
 
   if (trx->undo_no != 0) {
     newline = true;

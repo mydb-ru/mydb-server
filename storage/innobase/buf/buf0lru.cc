@@ -229,6 +229,8 @@ particular space id.
 static void buf_LRU_drop_page_hash_batch(space_id_t space_id,
                                          const page_size_t &page_size,
                                          const page_no_t *arr, ulint count) {
+#ifdef BTR_CUR_AHI
+
   ut_ad(count <= BUF_LRU_DROP_SEARCH_SIZE);
 
   for (ulint i = 0; i < count; ++i, ++arr) {
@@ -242,6 +244,8 @@ static void buf_LRU_drop_page_hash_batch(space_id_t space_id,
     already removed the AHI entries. */
     btr_search_drop_page_hash_when_freed(page_id_t(space_id, *arr), page_size);
   }
+
+#endif /* BTR_CUR_AHI */
 }
 
 /** When doing a DROP TABLE/DISCARD TABLESPACE we have to drop all page
@@ -252,6 +256,7 @@ not guarantee that ALL hash entries will be removed.
 @param[in]      space_id        space id */
 static void buf_LRU_drop_page_hash_for_tablespace(buf_pool_t *buf_pool,
                                                   space_id_t space_id) {
+#ifdef BTR_CUR_AHI
   bool found;
   const page_size_t page_size(fil_space_get_page_size(space_id, &found));
 
@@ -284,6 +289,7 @@ scan_again:
       bpage = prev_bpage;
       continue;
     }
+
 
     buf_block_t *block = reinterpret_cast<buf_block_t *>(bpage);
 
@@ -348,6 +354,7 @@ scan_again:
   /* Drop any remaining batch of search hashed pages. */
   buf_LRU_drop_page_hash_batch(space_id, page_size, page_arr, num_entries);
   ut::free(page_arr);
+#endif /* BTR_CUR_AHI */
 }
 
 /** Try to pin the block in buffer pool. Once pinned, the block cannot be moved
@@ -874,6 +881,8 @@ scan_again:
                           bpage->id.space(), bpage->id.page_no(),
                           static_cast<unsigned>(bpage->state)));
 
+#ifdef BTR_CUR_AHI
+
     if (buf_page_get_state(bpage) != BUF_BLOCK_FILE_PAGE) {
       /* Do nothing, because the adaptive hash index
       covers uncompressed pages only. */
@@ -896,6 +905,8 @@ scan_again:
     } else {
       reinterpret_cast<buf_block_t *>(bpage)->ahi.assert_empty();
     }
+
+#endif /* BTR_CUR_AHI */
 
     if (bpage->is_dirty()) {
       buf_flush_remove(bpage);
@@ -1225,9 +1236,11 @@ buf_block_t *buf_LRU_get_free_only(buf_pool_t *buf_pool) {
     if (!buf_get_withdraw_depth(buf_pool) ||
         !buf_block_will_withdrawn(buf_pool, block)) {
       /* found valid free block */
+#ifdef BTR_CUR_AHI
       /* No adaptive hash index entries may point to
       a free block. */
       block->ahi.assert_empty();
+#endif
 
       buf_block_set_state(block, BUF_BLOCK_READY_FOR_USE);
 
@@ -2152,7 +2165,9 @@ void buf_LRU_block_free_non_file_page(buf_block_t *block) {
       ut_error;
   }
 
+#ifdef BTR_CUR_AHI
   block->ahi.assert_empty();
+#endif
   ut_ad(!block->page.in_free_list);
   ut_ad(!block->page.in_flush_list);
   ut_ad(!block->page.in_LRU_list);

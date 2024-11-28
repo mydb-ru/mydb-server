@@ -287,7 +287,11 @@ bool btr_pcur_t::restore_position(ulint latch_mode, mtr_t *mtr,
       ut_error;
   }
 
-  open_no_init(index, tuple, mode, latch_mode, 0, mtr, location);
+  open_no_init(index, tuple, mode, latch_mode,
+#ifdef BTR_CUR_AHI
+               0,
+#endif
+               mtr, location);
 
   /* Restore the old search mode */
   m_search_mode = old_mode;

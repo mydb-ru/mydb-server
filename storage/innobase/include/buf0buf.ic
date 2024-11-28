@@ -735,7 +735,9 @@ static inline void buf_block_modify_clock_inc(buf_block_t *block) {
 #ifdef UNIV_DEBUG
   const auto bpage = &block->page;
 #endif /* UNIV_DEBUG */
+#ifdef BTR_CUR_AHI
   block->ahi.validate();
+#endif
 
   /* No block latch is acquired for internal temporary tables. */
   ut_ad(fsp_is_system_temporary(block->page.id.space()) ||

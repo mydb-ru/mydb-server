@@ -657,10 +657,12 @@ void btr_cur_search_to_nth_level(
                        to protect the record! */
     btr_cur_t *cursor,     /*!< in/out: tree cursor; the cursor page is
                            s- or x-latched, but see also above! */
+#ifdef BTR_CUR_AHI
     ulint has_search_latch,
     /*!< in: info on the latch mode the
     caller currently has on search system:
     RW_S_LATCH, or 0 */
+#endif
     const char *file, /*!< in: file name */
     ulint line,       /*!< in: line where called */
     mtr_t *mtr)       /*!< in: mtr */
@@ -789,6 +791,9 @@ void btr_cur_search_to_nth_level(
 #ifdef UNIV_SEARCH_PERF_STAT
   info->n_searches++;
 #endif
+
+#ifdef BTR_CUR_AHI
+
   /* Use of AHI is disabled for intrinsic table as these tables re-use
   the index-id and AHI validation is based on index-id. */
   if (rw_lock_get_writer(btr_get_search_latch(index)) == RW_LOCK_NOT_LOCKED &&
@@ -814,6 +819,7 @@ void btr_cur_search_to_nth_level(
 
     return;
   }
+
   btr_cur_n_non_sea++;
   DBUG_EXECUTE_IF("non_ahi_search",
                   assert(!strcmp(index->table->name.m_name, "test/t1")););
@@ -825,6 +831,8 @@ void btr_cur_search_to_nth_level(
     /* Release possible search latch to obey latching order */
     rw_lock_s_unlock(btr_get_search_latch(index));
   }
+
+#endif /* BTR_CUR_AHI */
 
   /* Store the position of the tree latch we push to mtr so that we
   know how to release it when we have latched leaf node(s) */
@@ -1726,9 +1734,13 @@ func_exit:
     ut::free(prev_tree_savepoints);
   }
 
+#ifdef BTR_CUR_AHI
+
   if (has_search_latch) {
     rw_lock_s_lock(btr_get_search_latch(index), UT_LOCATION_HERE);
   }
+
+#endif /* BTR_CUR_AHI */
 
   if (mbr_adj) {
     /* remember that we will need to adjust parent MBR */
@@ -2940,6 +2952,8 @@ dberr_t btr_cur_optimistic_insert(
     }
   }
 
+#ifdef BTR_CUR_AHI
+
   if (!index->disable_ahi) {
     if (!reorg && leaf && (cursor->flag == BTR_CUR_HASH)) {
       btr_search_update_hash_node_on_insert(cursor);
@@ -2947,6 +2961,8 @@ dberr_t btr_cur_optimistic_insert(
       btr_search_update_hash_on_insert(cursor);
     }
   }
+
+#endif /* BTR_CUR_AHI */
 
   if (!(flags & BTR_NO_LOCKING_FLAG) && inherit) {
     lock_update_insert(block, *rec);
@@ -3455,6 +3471,8 @@ dberr_t btr_cur_update_in_place(ulint flags, btr_cur_t *cursor, ulint *offsets,
   was_delete_marked =
       rec_get_deleted_flag(rec, page_is_comp(buf_block_get_frame(block)));
 
+#ifdef BTR_CUR_AHI
+
   if (block->ahi.index.load() != nullptr) {
     /* TO DO: Can we skip this if none of the fields
     index->search_info->curr_n_fields
@@ -3472,7 +3490,11 @@ dberr_t btr_cur_update_in_place(ulint flags, btr_cur_t *cursor, ulint *offsets,
     }
   }
 
+
   block->ahi.validate();
+
+#endif /* BTR_CUR_AHI */
+
   row_upd_rec_in_place(rec, index, offsets, update, page_zip);
 
   btr_cur_update_in_place_log(flags, rec, index, update, trx_id, roll_ptr, mtr);
@@ -5125,7 +5147,10 @@ static int64_t btr_estimate_n_rows_in_range_low(
 
   if (dtuple_get_n_fields(tuple1) > 0) {
     btr_cur_search_to_nth_level(index, 0, tuple1, mode1,
-                                BTR_SEARCH_LEAF | BTR_ESTIMATE, &cursor, 0,
+                                BTR_SEARCH_LEAF | BTR_ESTIMATE, &cursor,
+#ifdef BTR_CUR_AHI
+                                0,
+#endif
                                 __FILE__, __LINE__, &mtr);
 
     ut_ad(!page_rec_is_infimum(btr_cur_get_rec(&cursor)));
@@ -5167,7 +5192,10 @@ static int64_t btr_estimate_n_rows_in_range_low(
 
   if (dtuple_get_n_fields(tuple2) > 0) {
     btr_cur_search_to_nth_level(index, 0, tuple2, mode2,
-                                BTR_SEARCH_LEAF | BTR_ESTIMATE, &cursor, 0,
+                                BTR_SEARCH_LEAF | BTR_ESTIMATE, &cursor,
+#ifdef BTR_CUR_AHI
+                                0,
+#endif
                                 __FILE__, __LINE__, &mtr);
 
     const rec_t *rec = btr_cur_get_rec(&cursor);

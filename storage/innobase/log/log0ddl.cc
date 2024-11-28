@@ -702,7 +702,11 @@ dberr_t DDL_Log_Table::search_by_id(ulint id, dict_index_t *index,
   mtr_start(&mtr);
 
   create_tuple(id, index);
-  pcur.open_no_init(index, m_tuple, PAGE_CUR_GE, BTR_SEARCH_LEAF, 0, &mtr,
+  pcur.open_no_init(index, m_tuple, PAGE_CUR_GE, BTR_SEARCH_LEAF,
+#ifdef BTR_CUR_AHI
+                    0,
+#endif
+                    &mtr,
                     UT_LOCATION_HERE);
 
   for (; move == true; move = pcur.move_to_next(&mtr)) {

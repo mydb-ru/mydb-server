@@ -3625,7 +3625,11 @@ static ulint fts_add_doc_by_id(fts_trx_table_t *ftt, doc_id_t doc_id,
   mach_write_to_8((byte *)&temp_doc_id, doc_id);
   dfield_set_data(dfield, &temp_doc_id, sizeof(temp_doc_id));
 
-  pcur.open_no_init(fts_id_index, tuple, PAGE_CUR_LE, BTR_SEARCH_LEAF, 0, &mtr,
+  pcur.open_no_init(fts_id_index, tuple, PAGE_CUR_LE, BTR_SEARCH_LEAF,
+#ifdef BTR_CUR_AHI
+                    0,
+#endif
+                    &mtr,
                     UT_LOCATION_HERE);
 
   /* If we have a match, add the data to doc structure */
@@ -3661,7 +3665,11 @@ static ulint fts_add_doc_by_id(fts_trx_table_t *ftt, doc_id_t doc_id,
       row_build_row_ref_in_tuple(clust_ref, rec, fts_id_index, nullptr);
 
       clust_pcur.open_no_init(clust_index, clust_ref, PAGE_CUR_LE,
-                              BTR_SEARCH_LEAF, 0, &mtr, UT_LOCATION_HERE);
+                              BTR_SEARCH_LEAF,
+#ifdef BTR_CUR_AHI
+                              0,
+#endif
+                              &mtr, UT_LOCATION_HERE);
 
       doc_pcur = &clust_pcur;
       clust_rec = clust_pcur.get_rec();

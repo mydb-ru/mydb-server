@@ -826,7 +826,11 @@ static inline bool row_sel_test_other_conds(
   index = plan->table->first_index();
 
   plan->clust_pcur.open_no_init(index, plan->clust_ref, PAGE_CUR_LE,
-                                BTR_SEARCH_LEAF, 0, mtr, UT_LOCATION_HERE);
+                                BTR_SEARCH_LEAF,
+#ifdef BTR_CUR_AHI
+                                0,
+#endif
+                                mtr, UT_LOCATION_HERE);
 
   clust_rec = plan->clust_pcur.get_rec();
 
@@ -1181,21 +1185,26 @@ static inline dberr_t sel_set_rec_lock(btr_pcur_t *pcur, const rec_t *rec,
 
 /** Opens a pcur to a table index. */
 static void row_sel_open_pcur(plan_t *plan, /*!< in: table plan */
+#ifdef BTR_CUR_AHI
                               bool search_latch_locked,
                               /*!< in: true if the thread currently
                               has the search latch locked in
                               s-mode */
+#endif
                               mtr_t *mtr) /*!< in: mtr */
 {
   dict_index_t *index;
   que_node_t *exp;
   ulint n_fields;
-  ulint has_search_latch = 0; /* RW_S_LATCH or 0 */
   ulint i;
+
+#ifdef BTR_CUR_AHI
+  ulint has_search_latch = 0; /* RW_S_LATCH or 0 */
 
   if (search_latch_locked) {
     has_search_latch = RW_S_LATCH;
   }
+#endif
 
   index = plan->index;
 
@@ -1227,7 +1236,10 @@ static void row_sel_open_pcur(plan_t *plan, /*!< in: table plan */
     /* Open pcur to the index */
 
     plan->pcur.open_no_init(index, plan->tuple, plan->mode, BTR_SEARCH_LEAF,
-                            has_search_latch, mtr, UT_LOCATION_HERE);
+#ifdef BTR_CUR_AHI
+                            has_search_latch,
+#endif
+                            mtr, UT_LOCATION_HERE);
   } else {
     /* Open the cursor to the start or the end of the index
     (false: no init) */
@@ -1341,9 +1353,11 @@ static ulint row_sel_try_search_shortcut(
     sel_node_t *node, /*!< in: select node for a consistent read */
     plan_t *plan,     /*!< in: plan for a unique search in clustered
                       index */
+#ifdef BTR_CUR_AHI
     bool search_latch_locked,
     /*!< in: whether the search holds latch on
     search system. */
+#endif
     mtr_t *mtr) /*!< in: mtr */
 {
   dict_index_t *index;
@@ -1359,13 +1373,19 @@ static ulint row_sel_try_search_shortcut(
   ut_ad(node->read_view);
   ut_ad(plan->unique_search);
   ut_ad(!plan->must_get_clust);
+#ifdef BTR_CUR_AHI
 #ifdef UNIV_DEBUG
   if (search_latch_locked) {
     ut_ad(rw_lock_own(btr_get_search_latch(index), RW_LOCK_S));
   }
 #endif /* UNIV_DEBUG */
+#endif /* BTR_CUR_AHI */
 
-  row_sel_open_pcur(plan, search_latch_locked, mtr);
+  row_sel_open_pcur(plan,
+#ifdef BTR_CUR_AHI
+                    search_latch_locked,
+#endif
+                    mtr);
 
   rec = plan->pcur.get_rec();
 
@@ -1445,7 +1465,9 @@ func_exit:
   rec_t *rec;
   rec_t *old_vers;
   rec_t *clust_rec;
+#ifdef BTR_CUR_AHI
   bool search_latch_locked;
+#endif
   bool consistent_read;
 
   /* The following flag becomes true when we are doing a
@@ -1473,7 +1495,9 @@ func_exit:
 
   ut_ad(thr->run_node == node);
 
+#ifdef BTR_CUR_AHI
   search_latch_locked = false;
+#endif
 
   if (node->read_view) {
     /* In consistent reads, we try to do with the hash index and
@@ -1522,6 +1546,8 @@ table_loop:
 
   if (consistent_read && plan->unique_search && !plan->pcur_is_open &&
       !plan->must_get_clust && !plan->table->big_rows) {
+
+#ifdef BTR_CUR_AHI
     if (!search_latch_locked) {
       rw_lock_s_lock(btr_get_search_latch(index), UT_LOCATION_HERE);
 
@@ -1538,9 +1564,13 @@ table_loop:
       rw_lock_s_unlock(btr_get_search_latch(index));
       rw_lock_s_lock(btr_get_search_latch(index), UT_LOCATION_HERE);
     }
+#endif
 
     found_flag = row_sel_try_search_shortcut(thr_get_trx(thr), node, plan,
-                                             search_latch_locked, &mtr);
+#ifdef BTR_CUR_AHI
+                                             search_latch_locked,
+#endif
+                                             &mtr);
 
     if (found_flag == SEL_FOUND) {
       goto next_table;
@@ -1557,17 +1587,23 @@ table_loop:
     mtr_start(&mtr);
   }
 
+#ifdef BTR_CUR_AHI
   if (search_latch_locked) {
     rw_lock_s_unlock(btr_get_search_latch(index));
 
     search_latch_locked = false;
   }
+#endif
 
   if (!plan->pcur_is_open) {
     /* Evaluate the expressions to build the search tuple and
     open the cursor */
 
-    row_sel_open_pcur(plan, search_latch_locked, &mtr);
+    row_sel_open_pcur(plan,
+#ifdef BTR_CUR_AHI
+                      search_latch_locked,
+#endif
+                      &mtr);
 
     cursor_just_opened = true;
 
@@ -1908,7 +1944,9 @@ skip_lock:
   }
 
 next_rec:
+#ifdef BTR_CUR_AHI
   ut_ad(!search_latch_locked);
+#endif
 
   if (mtr_has_extra_clust_latch) {
     /* We must commit &mtr if we are moving to the next
@@ -1944,7 +1982,9 @@ next_table:
   if (plan->unique_search && !node->can_get_updated) {
     plan->cursor_at_end = true;
   } else {
+#ifdef BTR_CUR_AHI
     ut_ad(!search_latch_locked);
+#endif
 
     plan->stored_cursor_rec_processed = true;
 
@@ -2033,7 +2073,9 @@ stop_for_a_while:
   inserted new records which should have appeared in the result set,
   which would result in the phantom problem. */
 
+#ifdef BTR_CUR_AHI
   ut_ad(!search_latch_locked);
+#endif
 
   plan->stored_cursor_rec_processed = false;
   plan->pcur.store_position(&mtr);
@@ -2058,7 +2100,9 @@ commit_mtr_for_a_while:
 
   plan->stored_cursor_rec_processed = true;
 
+#ifdef BTR_CUR_AHI
   ut_ad(!search_latch_locked);
+#endif
   plan->pcur.store_position(&mtr);
 
   mtr_commit(&mtr);
@@ -2079,7 +2123,9 @@ lock_wait_or_error:
   /* See the note at stop_for_a_while: the same holds for this case */
 
   ut_ad(!plan->pcur.is_before_first_on_page() || !node->asc);
+#ifdef BTR_CUR_AHI
   ut_ad(!search_latch_locked);
+#endif
 
   plan->stored_cursor_rec_processed = false;
   plan->pcur.store_position(&mtr);
@@ -2095,9 +2141,11 @@ lock_wait_or_error:
 #endif /* UNIV_DEBUG */
 
 func_exit:
+#ifdef BTR_CUR_AHI
   if (search_latch_locked) {
     rw_lock_s_unlock(btr_get_search_latch(index));
   }
+#endif
 
   if (heap != nullptr) {
     mem_heap_free(heap);
@@ -2766,7 +2814,9 @@ void row_sel_field_store_in_mysql_format_func(
   if (rec_offs_nth_extern(index_used, offsets, field_no)) {
     /* Copy an externally stored field to a temporary heap */
 
+#ifdef BTR_CUR_AHI
     ut_a(!prebuilt->trx->has_search_latch);
+#endif
     ut_ad(field_no == templ->clust_rec_field_no);
     ut_ad(templ->type != DATA_POINT);
 
@@ -3169,7 +3219,11 @@ non-clustered index. Does the necessary locking.
   clust_index = sec_index->table->first_index();
 
   prebuilt->clust_pcur->open_no_init(clust_index, prebuilt->clust_ref,
-                                     PAGE_CUR_LE, BTR_SEARCH_LEAF, 0, mtr,
+                                     PAGE_CUR_LE, BTR_SEARCH_LEAF,
+#ifdef BTR_CUR_AHI
+                                     0,
+#endif
+                                     mtr,
                                      UT_LOCATION_HERE);
 
   clust_rec = prebuilt->clust_pcur->get_rec();
@@ -3750,10 +3804,15 @@ static ulint row_sel_try_search_shortcut_for_mysql(
   ut_ad(index->is_clustered());
   ut_ad(!prebuilt->templ_contains_blob);
 
+#ifdef BTR_CUR_AHI
   ut_ad(trx->has_search_latch);
+#endif
 
   pcur->open_no_init(index, search_tuple, PAGE_CUR_GE, BTR_SEARCH_LEAF,
-                     RW_S_LATCH, mtr, UT_LOCATION_HERE);
+#ifdef BTR_CUR_AHI
+                     RW_S_LATCH,
+#endif
+                     mtr, UT_LOCATION_HERE);
   rec = pcur->get_rec();
 
   if (!page_rec_is_user_rec(rec)) {
@@ -4105,7 +4164,10 @@ dberr_t row_search_no_mvcc(byte *buf, page_cur_mode_t mode,
       dtuple_t *tuple = dict_index_build_data_tuple(index, pcur->m_old_rec,
                                                     pcur->m_old_n_fields, heap);
 
-      pcur->open_no_init(index, tuple, pcur->m_search_mode, BTR_SEARCH_LEAF, 0,
+      pcur->open_no_init(index, tuple, pcur->m_search_mode, BTR_SEARCH_LEAF,
+#ifdef BTR_CUR_AHI
+                         0,
+#endif
                          mtr, UT_LOCATION_HERE);
 
       mem_heap_free(heap);
@@ -4135,7 +4197,11 @@ dberr_t row_search_no_mvcc(byte *buf, page_cur_mode_t mode,
     dict_disable_redo_if_temporary(index->table, mtr);
 
     if (dtuple_get_n_fields(search_tuple) > 0) {
-      pcur->open_no_init(index, search_tuple, mode, BTR_SEARCH_LEAF, 0, mtr,
+      pcur->open_no_init(index, search_tuple, mode, BTR_SEARCH_LEAF,
+#ifdef BTR_CUR_AHI
+                         0,
+#endif
+                         mtr,
                          UT_LOCATION_HERE);
 
     } else if (mode == PAGE_CUR_G || mode == PAGE_CUR_L) {
@@ -4583,7 +4649,9 @@ dberr_t row_search_mvcc(byte *buf, page_cur_mode_t mode,
   ut_ad(index && pcur && search_tuple);
   ut_a(prebuilt->magic_n == ROW_PREBUILT_ALLOCATED);
   ut_a(prebuilt->magic_n2 == ROW_PREBUILT_ALLOCATED);
+#ifdef BTR_CUR_AHI
   ut_a(!trx->has_search_latch);
+#endif
 
   /* We don't support FTS queries from the HANDLER interfaces, because
   we implemented FTS as reversed inverted index with auxiliary tables.
@@ -4593,12 +4661,14 @@ dberr_t row_search_mvcc(byte *buf, page_cur_mode_t mode,
     return DB_END_OF_INDEX;
   }
 
+#ifdef BTR_CUR_AHI
 #ifdef UNIV_DEBUG
   {
     btrsea_sync_check check(!trx->has_search_latch);
     ut_ad(!sync_check_iterate(check));
   }
 #endif /* UNIV_DEBUG */
+#endif
 
   if (dict_table_is_discarded(prebuilt->table)) {
     return DB_TABLESPACE_DELETED;
@@ -4776,9 +4846,11 @@ dberr_t row_search_mvcc(byte *buf, page_cur_mode_t mode,
       and if we try that, we can deadlock on the adaptive
       hash index semaphore! */
 
+#ifdef BTR_CUR_AHI
       ut_a(!trx->has_search_latch);
       rw_lock_s_lock(btr_get_search_latch(index), UT_LOCATION_HERE);
       trx->has_search_latch = true;
+#endif
 
       switch (row_sel_try_search_shortcut_for_mysql(&rec, prebuilt, &offsets,
                                                     &heap, &mtr)) {
@@ -4826,8 +4898,10 @@ dberr_t row_search_mvcc(byte *buf, page_cur_mode_t mode,
 
           err = DB_SUCCESS;
 
+#ifdef BTR_CUR_AHI
           rw_lock_s_unlock(btr_get_search_latch(index));
           trx->has_search_latch = false;
+#endif
 
           goto func_exit;
 
@@ -4837,8 +4911,10 @@ dberr_t row_search_mvcc(byte *buf, page_cur_mode_t mode,
 
           err = DB_RECORD_NOT_FOUND;
 
+#ifdef BTR_CUR_AHI
           rw_lock_s_unlock(btr_get_search_latch(index));
           trx->has_search_latch = false;
+#endif
 
           /* NOTE that we do NOT store the cursor
           position */
@@ -4855,8 +4931,10 @@ dberr_t row_search_mvcc(byte *buf, page_cur_mode_t mode,
       mtr_commit(&mtr);
       mtr_start(&mtr);
 
+#ifdef BTR_CUR_AHI
       rw_lock_s_unlock(btr_get_search_latch(index));
       trx->has_search_latch = false;
+#endif
     }
   }
 
@@ -5004,7 +5082,11 @@ dberr_t row_search_mvcc(byte *buf, page_cur_mode_t mode,
       }
     }
 
-    pcur->open_no_init(index, search_tuple, mode, BTR_SEARCH_LEAF, 0, &mtr,
+    pcur->open_no_init(index, search_tuple, mode, BTR_SEARCH_LEAF,
+#ifdef BTR_CUR_AHI
+                       0,
+#endif
+                       &mtr,
                        UT_LOCATION_HERE);
 
     pcur->m_trx_if_known = trx;
@@ -6202,6 +6284,7 @@ func_exit:
     }
   }
 
+#ifdef BTR_CUR_AHI
 #ifdef UNIV_DEBUG
   {
     btrsea_sync_check check(!trx->has_search_latch);
@@ -6209,12 +6292,15 @@ func_exit:
     ut_ad(!sync_check_iterate(check));
   }
 #endif /* UNIV_DEBUG */
+#endif /* BTR_CUR_AHI */
 
   DEBUG_SYNC_C("innodb_row_search_for_mysql_exit");
 
   prebuilt->lob_undo_reset();
 
+#ifdef BTR_CUR_AHI
   ut_a(!trx->has_search_latch);
+#endif
 
   return err;
 }
@@ -6504,7 +6590,11 @@ bool row_search_table_stats(const char *db_name, const char *tbl_name,
   dfield_set_data(dfield, tbl_name, strlen(tbl_name));
 
   mtr_start(&mtr);
-  pcur.open_no_init(clust_index, dtuple, PAGE_CUR_GE, BTR_SEARCH_LEAF, 0, &mtr,
+  pcur.open_no_init(clust_index, dtuple, PAGE_CUR_GE, BTR_SEARCH_LEAF,
+#ifdef BTR_CUR_AHI
+                    0,
+#endif
+                    &mtr,
                     UT_LOCATION_HERE);
 
   for (; move == true; move = pcur.move_to_next(&mtr)) {
@@ -6585,7 +6675,11 @@ bool row_search_index_stats(const char *db_name, const char *tbl_name,
   dfield_set_data(dfield, index_name, strlen(index_name));
 
   mtr_start(&mtr);
-  pcur.open_no_init(clust_index, dtuple, PAGE_CUR_GE, BTR_SEARCH_LEAF, 0, &mtr,
+  pcur.open_no_init(clust_index, dtuple, PAGE_CUR_GE, BTR_SEARCH_LEAF,
+#ifdef BTR_CUR_AHI
+                    0,
+#endif
+                    &mtr,
                     UT_LOCATION_HERE);
 
   for (; move == true; move = pcur.move_to_next(&mtr)) {

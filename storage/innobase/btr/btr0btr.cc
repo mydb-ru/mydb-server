@@ -720,7 +720,11 @@ static ulint *btr_page_get_father_node_ptr_func(
         location.line, mtr);
   } else {
     btr_cur_search_to_nth_level(index, level + 1, tuple, PAGE_CUR_LE,
-                                latch_mode, cursor, 0, location.filename,
+                                latch_mode, cursor,
+#ifdef BTR_CUR_AHI
+                                0,
+#endif
+                                location.filename,
                                 location.line, mtr);
   }
 
@@ -1017,9 +1021,14 @@ static void btr_free_but_not_root(buf_block_t *block, mtr_log_t log_mode,
   ut_ad(page_is_root(block->frame));
 
   bool ahi = false;
+
+#ifdef BTR_CUR_AHI
+
   if (is_ahi_allowed) {
     ahi = btr_search_enabled.load();
   }
+
+#endif /* BTR_CUR_AHI */
 
 leaf_loop:
   mtr_start(&mtr);
@@ -2017,7 +2026,10 @@ void btr_insert_on_non_leaf_level(uint32_t flags, dict_index_t *index,
           index, level, tuple, PAGE_CUR_LE, &cursor, __FILE__, __LINE__, mtr);
     } else {
       btr_cur_search_to_nth_level(index, level, tuple, PAGE_CUR_LE,
-                                  BTR_CONT_MODIFY_TREE, &cursor, 0,
+                                  BTR_CONT_MODIFY_TREE, &cursor,
+#ifdef BTR_CUR_AHI
+                                  0,
+#endif
                                   location.filename, location.line, mtr);
     }
   } else {
@@ -2028,7 +2040,10 @@ void btr_insert_on_non_leaf_level(uint32_t flags, dict_index_t *index,
     rtr_info_update_btr(&cursor, &rtr_info);
 
     btr_cur_search_to_nth_level(index, level, tuple, PAGE_CUR_RTREE_INSERT,
-                                BTR_CONT_MODIFY_TREE, &cursor, 0,
+                                BTR_CONT_MODIFY_TREE, &cursor,
+#ifdef BTR_CUR_AHI
+                                0,
+#endif
                                 location.filename, location.line, mtr);
   }
 

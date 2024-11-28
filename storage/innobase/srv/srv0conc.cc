@@ -220,6 +220,7 @@ static void srv_conc_exit_innodb_with_atomics(
 dberr_t srv_conc_enter_innodb(row_prebuilt_t *prebuilt) {
   trx_t *trx = prebuilt->trx;
 
+#ifdef BTR_CUR_AHI
 #ifdef UNIV_DEBUG
   {
     btrsea_sync_check check(trx->has_search_latch);
@@ -227,6 +228,7 @@ dberr_t srv_conc_enter_innodb(row_prebuilt_t *prebuilt) {
     ut_ad(!sync_check_iterate(check));
   }
 #endif /* UNIV_DEBUG */
+#endif /* BTR_CUR_AHI */
 
   return srv_conc_enter_innodb_with_atomics(trx);
 }
@@ -236,6 +238,7 @@ dberr_t srv_conc_enter_innodb(row_prebuilt_t *prebuilt) {
 void srv_conc_force_enter_innodb(trx_t *trx) /*!< in: transaction object
                                              associated with the thread */
 {
+#ifdef BTR_CUR_AHI
 #ifdef UNIV_DEBUG
   {
     btrsea_sync_check check(trx->has_search_latch);
@@ -243,6 +246,7 @@ void srv_conc_force_enter_innodb(trx_t *trx) /*!< in: transaction object
     ut_ad(!sync_check_iterate(check));
   }
 #endif /* UNIV_DEBUG */
+#endif /* BTR_CUR_AHI */
 
   if (!srv_thread_concurrency) {
     return;
@@ -269,6 +273,7 @@ void srv_conc_force_exit_innodb(trx_t *trx) /*!< in: transaction object
 
   srv_conc_exit_innodb_with_atomics(trx);
 
+#ifdef BTR_CUR_AHI
 #ifdef UNIV_DEBUG
   {
     btrsea_sync_check check(trx->has_search_latch);
@@ -276,6 +281,7 @@ void srv_conc_force_exit_innodb(trx_t *trx) /*!< in: transaction object
     ut_ad(!sync_check_iterate(check));
   }
 #endif /* UNIV_DEBUG */
+#endif /* BTR_CUR_AHI */
 }
 
 /** Get the count of threads waiting inside InnoDB. */
