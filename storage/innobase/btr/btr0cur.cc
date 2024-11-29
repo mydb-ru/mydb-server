@@ -984,7 +984,11 @@ retry_page_get:
   tree_savepoints[n_blocks] = mtr_set_savepoint(mtr);
   block = buf_page_get_gen(
       page_id, page_size, rw_latch,
+#ifdef BTR_CUR_AHI
       (height == ULINT_UNDEFINED ? index->search_info->root_guess : nullptr),
+#else
+      nullptr,
+#endif
       fetch, {file, line}, mtr);
 
   tree_blocks[n_blocks] = block;
@@ -1175,7 +1179,9 @@ retry_page_get:
       rtr_get_mbr_from_tuple(tuple, &cursor->rtr_info->mbr);
     }
 
+#ifdef BTR_CUR_AHI
     index->search_info->root_guess = block;
+#endif
   }
 
   if (height == 0) {
