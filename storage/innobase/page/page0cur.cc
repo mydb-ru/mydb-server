@@ -47,10 +47,11 @@ this program; if not, write to the Free Software Foundation, Inc.,
 #include "rem0cmp.h"
 #endif /* !UNIV_HOTBACKUP */
 
-#ifdef PAGE_CUR_ADAPT
+#ifdef BTR_CUR_AHI
 #ifdef UNIV_SEARCH_PERF_STAT
 static ulint page_cur_short_succ = 0;
 #endif /* UNIV_SEARCH_PERF_STAT */
+#endif /* BTR_CUR_AHI */
 
 #ifndef UNIV_HOTBACKUP
 /** This is a linear congruential generator PRNG. Returns a pseudo random
@@ -85,6 +86,7 @@ static uint64_t page_cur_lcg_prng(void) {
   return (lcg_current);
 }
 
+#ifdef BTR_CUR_AHI
 /** Try a search shortcut based on the last insert.
 @param[in]      block                   index page
 @param[in]      index                   index tree
@@ -236,6 +238,7 @@ exit_func:
   return (success);
 }
 #endif /* !UNIV_HOTBACKUP */
+#endif /* BTR_CUR_AHI */
 
 #ifdef PAGE_CUR_LE_OR_EXTENDS
 /** Checks if the nth field in a record is a character type field which extends
@@ -282,7 +285,6 @@ static bool page_cur_rec_field_extends(const dtuple_t *tuple, const rec_t *rec,
   return false;
 }
 #endif /* PAGE_CUR_LE_OR_EXTENDS */
-#endif /* PAGE_CUR_ADAPT */
 
 #ifndef UNIV_HOTBACKUP
 /** Check if rec has at least one NULL value among the columns for which
@@ -370,7 +372,7 @@ void page_cur_search_with_match(const buf_block_t *block,
 
   ut_d(page_check_dir(page));
 
-#ifdef PAGE_CUR_ADAPT
+#ifdef BTR_CUR_AHI
   if (page_is_leaf(page) && (mode == PAGE_CUR_LE) &&
       !dict_index_is_spatial(index) &&
       (page_header_get_field(page, PAGE_N_DIRECTION) > 3) &&
@@ -656,7 +658,7 @@ void page_cur_search_with_match_bytes(
 
   ut_d(page_check_dir(page));
 
-#ifdef PAGE_CUR_ADAPT
+#ifdef BTR_CUR_AHI
   if (page_is_leaf(page) && (mode == PAGE_CUR_LE) &&
       (page_header_get_field(page, PAGE_N_DIRECTION) > 3) &&
       (page_header_get_ptr(page, PAGE_LAST_INSERT)) &&

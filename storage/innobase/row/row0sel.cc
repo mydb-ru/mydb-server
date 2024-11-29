@@ -1345,6 +1345,7 @@ static inline void plan_reset_cursor(plan_t *plan) /*!< in: plan */
   plan->n_rows_prefetched = 0;
 }
 
+#ifdef BTR_CUR_AHI
 /** Tries to do a shortcut to fetch a clustered index record with a unique key,
  using the hash index if possible (not always).
  @return SEL_FOUND, SEL_EXHAUSTED, SEL_RETRY */
@@ -1452,6 +1453,7 @@ func_exit:
   }
   return (ret);
 }
+#endif
 
 /** Performs a select step.
  @return DB_SUCCESS or error code */
@@ -1486,7 +1488,6 @@ func_exit:
   contains a clustered index latch, and
   &mtr must be committed before we move
   to the next non-clustered record */
-  ulint found_flag;
   dberr_t err;
   mem_heap_t *heap = nullptr;
   ulint offsets_[REC_OFFS_NORMAL_SIZE];
@@ -1544,10 +1545,10 @@ table_loop:
 
   mtr_start(&mtr);
 
+#ifdef BTR_CUR_AHI
   if (consistent_read && plan->unique_search && !plan->pcur_is_open &&
       !plan->must_get_clust && !plan->table->big_rows) {
 
-#ifdef BTR_CUR_AHI
     if (!search_latch_locked) {
       rw_lock_s_lock(btr_get_search_latch(index), UT_LOCATION_HERE);
 
@@ -1564,12 +1565,11 @@ table_loop:
       rw_lock_s_unlock(btr_get_search_latch(index));
       rw_lock_s_lock(btr_get_search_latch(index), UT_LOCATION_HERE);
     }
-#endif
+
+    ulint found_flag;
 
     found_flag = row_sel_try_search_shortcut(thr_get_trx(thr), node, plan,
-#ifdef BTR_CUR_AHI
                                              search_latch_locked,
-#endif
                                              &mtr);
 
     if (found_flag == SEL_FOUND) {
@@ -1587,7 +1587,6 @@ table_loop:
     mtr_start(&mtr);
   }
 
-#ifdef BTR_CUR_AHI
   if (search_latch_locked) {
     rw_lock_s_unlock(btr_get_search_latch(index));
 
