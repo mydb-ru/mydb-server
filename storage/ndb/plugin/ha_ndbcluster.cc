@@ -3027,6 +3027,9 @@ int ha_ndbcluster::peek_indexed_rows(const uchar *record,
         bitmap_is_overlapping(table->write_set, m_key_fields[i])) {
       // Unique index being written
 
+      if (unlikely(m_index[i].type == UNDEFINED_INDEX))
+        return fail_index_offline(table, i);
+
       /*
         It's not possible to lookup a NULL field value in a unique index. But
         since keys with NULLs are not indexed, such rows cannot conflict anyway
@@ -6205,7 +6208,7 @@ static void get_default_value(void *def_val, Field *field) {
   }
 }
 
-static inline int fail_index_offline(TABLE *t, int index) {
+inline int fail_index_offline(TABLE *t, int index) {
   KEY *key_info = t->key_info + index;
   push_warning_printf(
       t->in_use, Sql_condition::SL_WARNING, ER_NOT_KEYFILE,
