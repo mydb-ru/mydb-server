@@ -1476,7 +1476,7 @@ SJ_TMP_TABLE *create_sj_tmp_table(THD *thd, JOIN *join,
   return sjtbl;
 }
 
-/**
+/*
   Setup the strategies to eliminate semi-join duplicates.
 
   @param join           Join to process
