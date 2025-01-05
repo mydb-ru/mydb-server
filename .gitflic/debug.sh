@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+
+set -xeuo pipefail
+
+build() {
+    rm -rf /build/*
+
+    cmake -S /src -B /build \
+        -DWITH_LD=mold \
+        -DWITH_ROUTER=0 \
+        -DWITH_SYSTEM_LIBS=on \
+        -DWITH_NDBCLUSTER_STORAGE_ENGINE=0 \
+        -DWITH_DEBUG=1 \
+        -DOPTIMIZE_DEBUG_BUILDS=1 \
+        -DMYSQL_MAINTAINER_MODE=0 \
+        -DWITH_NUMA=1 \
+        -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+        -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+        -G Ninja 2>&1 | tee /build/build_log.txt
+
+    ninja -C /build 2>&1 | tee -a /build/build_log.txt
+}
+
+test() {
+    chown -R ubuntu:ubuntu /build
+
+    su - ubuntu <<EOF
+set -xeuo pipefail
+# Have to run MTR as non-root
+eatmydata /build/mysql-test/mtr --parallel=auto \
+    --suite=main --force --max-test-fail=0 --report-unstable-tests \
+    --unit-tests --unit-tests-report 2>&1 | tee /build/mtr_log.txt
+EOF
+}
+
+main() {
+    if [[ $# -ne 1 ]]; then
+        cat <<EOF
+Usage: $0 command
+
+Where command is one of: build, test.
+EOF
+        exit 1
+    fi
+
+    case $1 in
+    build | test)
+        "$1" "$@"
+        ;;
+    *)
+        echo "Unsupported command: $1"
+        exit 1
+        ;;
+    esac
+}
+
+main "$@"

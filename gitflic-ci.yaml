@@ -1,0 +1,35 @@
+build:
+  stage: build
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - |
+      cd /src
+      rm -rf * .*
+      git config --global --add safe.directory /src
+      git init
+      git remote add origin "${CI_PROJECT_URL}.git"
+      git fetch --depth=50 origin "$CI_COMMIT_SHA"
+      git reset --hard FETCH_HEAD
+      git submodule update --init --recursive --depth=1
+    - |
+      docker run -v /build:/build -v /cache:/cache -v /src:/src --rm --cap-add SYS_NICE registry.gitflic.ru/project/mydb-ru/mydb-server/ubuntu:24.04 /src/.gitflic/debug.sh build
+      cp /build/build_log.txt .
+  artifacts:
+    names: build_log
+    paths:
+      - build_log.txt
+
+test:
+  stage: test
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - |
+      docker run -v /build:/build -v /cache:/cache -v /src:/src --rm --cap-add SYS_NICE registry.gitflic.ru/project/mydb-ru/mydb-server/ubuntu:24.04 /src/.gitflic/debug.sh test
+      cp /build/mtr_log.txt .
+  needs: build
+  artifacts:
+    names: mtr_log
+    paths:
+      - mtr_log.txt
