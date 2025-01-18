@@ -1296,8 +1296,16 @@ IF(UNIX AND MY_COMPILER_IS_GNU_OR_CLANG)
   ENDIF()
 ENDIF()
 
-# Enable "-Og -fno-inline" for ordinary Debug builds.
-# Note that this may optimize away local stack variables.
+# Enable "-O2" for ordinary Debug builds.
+#
+# For MyDB we don't want binaries to be assert-enabled, debuggable and optimized
+# all at the same time. In CI/CD we either want release binaries, or
+# assert-enabled binaries (in which case we also want them optimized to save
+# time in CI builds). That's why we have changed the sematics of
+# OPTIMIZE_DEBUG_BUILDS compared to upstream.
+#
+# If a developer needs a debuggable, assert-enable binary, -DWITH_DEBUG=1
+# -DOPTIMIZE_DEBUG_BUILDS=0 should be used
 IF(UNIX AND MY_COMPILER_IS_GNU_OR_CLANG
     AND NOT CMAKE_COMPILER_FLAG_WITH_SANITIZE AND NOT WITH_VALGRIND)
   # ON by default in pushbuild, to save time running Debug test suites.
@@ -1326,13 +1334,13 @@ IF(UNIX AND MY_COMPILER_IS_GNU_OR_CLANG
     SET(OPTIMIZE_DEBUG_BUILDS_DEFAULT OFF)
   ENDIF()
   OPTION(OPTIMIZE_DEBUG_BUILDS
-    "Add -Og -fno-inline to CMAKE_<lang>_FLAGS_DEBUG"
+    "Add -O2 to CMAKE_<lang>_FLAGS_DEBUG"
     ${OPTIMIZE_DEBUG_BUILDS_DEFAULT}
     )
   # Use STRING_PREPEND here, so command-line input can override our defaults.
   IF(OPTIMIZE_DEBUG_BUILDS)
-    STRING_PREPEND(CMAKE_C_FLAGS_DEBUG   " -Og -fno-inline ")
-    STRING_PREPEND(CMAKE_CXX_FLAGS_DEBUG " -Og -fno-inline ")
+    STRING_PREPEND(CMAKE_C_FLAGS_DEBUG   " -O2 ")
+    STRING_PREPEND(CMAKE_CXX_FLAGS_DEBUG " -O2 ")
   ENDIF()
 ENDIF()
 
