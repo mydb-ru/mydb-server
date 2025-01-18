@@ -5606,7 +5606,7 @@ sub run_testcase ($) {
       if (-e $log_file_name) {
         $tinfo->{comment} .=
           "== $log_file_name == \n" .
-          mtr_lastlinesfromfile($log_file_name, 500) . "\n";
+          mtr_lastlinesfromfile($log_file_name, 20) . "\n";
       }
       error_logs_to_comment($tinfo);
 
@@ -6397,7 +6397,7 @@ sub report_failure_and_restart ($) {
           if (-e $log_file_name) {
             $tinfo->{comment} .=
               "The result from queries just before the failure was:" .
-              "\n< snip >\n" . mtr_lastlinesfromfile($log_file_name, 500) . "\n";
+              "\n< snip >\n" . mtr_lastlinesfromfile($log_file_name, 20) . "\n";
           }
         }
       } else {
@@ -7478,7 +7478,7 @@ sub start_mysqltest ($) {
 
   mtr_add_arg($args, "--test-file=%s", $tinfo->{'path'});
 
-  my $tail_lines = 500;
+  my $tail_lines = 20;
   if ($tinfo->{'full_result_diff'}) {
     # Use 10000 as an approximation for infinite output (same as maximum for
     # mysqltest --tail-lines).
