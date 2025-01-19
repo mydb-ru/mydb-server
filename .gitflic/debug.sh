@@ -19,20 +19,19 @@ build() {
         -DWITH_NUMA=1 \
         -DCMAKE_C_COMPILER_LAUNCHER=ccache \
         -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
-        -G Ninja 2>&1 | tee /build/build_log.txt
+        -G Ninja
 
-    ninja -C /build 2>&1 | tee -a /build/build_log.txt
+    ninja -C /build
 }
 
 test() {
     chown -R ubuntu:ubuntu /build
 
     su - ubuntu <<EOF
-set -xeuo pipefail
 # Have to run MTR as non-root
 eatmydata /build/mysql-test/mtr --parallel=auto \
     --suite=main --force --max-test-fail=0 --report-unstable-tests \
-    --unit-tests --unit-tests-report 2>&1 | tee /build/mtr_log.txt
+    --unit-tests --unit-tests-report
 EOF
 }
 

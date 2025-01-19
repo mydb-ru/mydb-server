@@ -16,10 +16,9 @@ build:
       git checkout --quiet "$CI_COMMIT_SHA"
       git submodule --quiet update --jobs=4 --init --recursive --depth=1
     - |
-      docker run -v /build:/build -v /cache:/cache -v /src:/src --rm --cap-add SYS_NICE registry.gitflic.ru/project/mydb-ru/mydb-server/ubuntu:24.04 /src/.gitflic/debug.sh build
-      cp /build/build_log.txt .
+      docker run -v /build:/build -v /cache:/cache -v /src:/src --rm --cap-add SYS_NICE registry.gitflic.ru/project/mydb-ru/mydb-server/ubuntu:24.04 /src/.gitflic/debug.sh build 2>&1 | tee build_log.txt
   artifacts:
-    names: build_log
+    name: build_log
     paths:
       - build_log.txt
 
@@ -29,10 +28,9 @@ test:
     GIT_STRATEGY: none
   script:
     - |
-      docker run -v /build:/build -v /cache:/cache -v /src:/src --rm --cap-add SYS_NICE registry.gitflic.ru/project/mydb-ru/mydb-server/ubuntu:24.04 /src/.gitflic/debug.sh test
-      cp /build/mtr_log.txt .
+      docker run -v /build:/build -v /cache:/cache -v /src:/src --rm --cap-add SYS_NICE registry.gitflic.ru/project/mydb-ru/mydb-server/ubuntu:24.04 /src/.gitflic/debug.sh test 2>&1 | tee mtr_log.txt
   needs: build
   artifacts:
-    names: mtr_log
+    name: mtr_log
     paths:
       - mtr_log.txt
