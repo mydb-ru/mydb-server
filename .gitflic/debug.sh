@@ -25,13 +25,15 @@ build() {
 }
 
 test() {
-    chown -R ubuntu:ubuntu /build
+    chown -R ubuntu /build
 
+    # Have to run MTR as non-root. Changing stdin to /dev/null is a workaround
+    # for a weird main.loaddata_special failure that only occurs when starting
+    # MTR under non-root user in a Docker container
     su - ubuntu <<EOF
-# Have to run MTR as non-root
 eatmydata /build/mysql-test/mtr --parallel=auto \
     --suite=main --force --max-test-fail=0 --report-unstable-tests \
-    --unit-tests --unit-tests-report
+    --unit-tests --unit-tests-report < /dev/null
 EOF
 }
 
