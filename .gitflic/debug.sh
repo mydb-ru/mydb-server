@@ -5,6 +5,9 @@ set -xeuo pipefail
 build() {
     rm -rf /build/*
 
+    # To be able to generate commit ID in INFO_SRC
+    git config --global --add safe.directory /src
+
     cmake -S /src -B /build \
         -DWITH_LD=mold \
         -DWITH_ROUTER=0 \
