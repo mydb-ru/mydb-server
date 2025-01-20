@@ -58,4 +58,4 @@ EOF
     esac
 }
 
-main "$@"
+main "$@" 2>&1 | tee /build/debug_log.txt
