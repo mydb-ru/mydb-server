@@ -16,6 +16,7 @@ build:
       git checkout --quiet "$CI_COMMIT_SHA"
       git submodule --quiet update --jobs=4 --init --recursive --depth=1
     - docker run -v /build:/build -v /cache:/cache -v /src:/src --rm --cap-add SYS_NICE registry.gitflic.ru/project/mydb-ru/mydb-server/ubuntu:24.04 /src/.gitflic/debug.sh build
+    - ls -l /build
     - cp /build/debug_log.txt build_log.txt
   artifacts:
     name: build_log
