@@ -32,7 +32,7 @@ test() {
     # MTR under non-root user in a Docker container
     su - ubuntu <<EOF
 eatmydata /build/mysql-test/mtr --parallel=auto \
-    --suite=main --force --max-test-fail=0 --report-unstable-tests \
+    --suite=default --force --max-test-fail=0 --report-unstable-tests \
     --unit-tests --unit-tests-report < /dev/null
 EOF
 }
