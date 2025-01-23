@@ -21,6 +21,7 @@ build:
     name: build_log
     paths:
       - build_log.txt
+    expire_in: 3 days
 
 test:
   stage: test
@@ -34,3 +35,4 @@ test:
     name: mtr_log
     paths:
       - mtr_log.txt
+    expire_in: 3 days
