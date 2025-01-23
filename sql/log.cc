@@ -947,7 +947,7 @@ bool File_query_log::write_slow(THD *thd, ulonglong current_utime,
 
     if (!mysql_parser_get_statement_digest(thd, digest_buf)) {
       for (int i = 0; i < PARSER_SERVICE_DIGEST_LENGTH; ++i) {
-        snprintf(digest_str + i * 2, digest_size, "%02x", digest_buf[i]);
+        snprintf(digest_str + i * 2, sizeof(digest_str) - i * 2, "%02x", digest_buf[i]);
       }
     }
 
