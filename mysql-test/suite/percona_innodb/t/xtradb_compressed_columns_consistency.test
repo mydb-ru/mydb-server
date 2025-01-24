@@ -1,3 +1,5 @@
+--source include/big_test.inc
+
 CREATE TABLE row_formats(row_format VARCHAR(40) NOT NULL PRIMARY KEY);
 INSERT INTO row_formats VALUES ('DYNAMIC');
 INSERT INTO row_formats VALUES ('REDUNDANT');
