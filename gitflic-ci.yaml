@@ -5,18 +5,20 @@ build:
   script:
     - |
       cd /src
-      rm -rf * .*
       git config --global --add safe.directory /src
-      mkdir -p git-template
-      git config --file=/src/git-template/config init.defaultBranch none
-      git config --file=/src/git-template/config fetch.recurseSubmodules false
-      git init --template=/src/git-template .
-      git remote add origin "${CI_PROJECT_URL}.git"
+      git status ||
+      {
+        rm -rf * .*
+        mkdir -p git-template
+        git config --file=/src/git-template/config init.defaultBranch none
+        git config --file=/src/git-template/config fetch.recurseSubmodules false
+        git init --template=/src/git-template .
+        git remote add origin "${CI_PROJECT_URL}.git"
+      }
       git fetch --depth=50 --quiet origin refs/heads/"$CI_COMMIT_REF_NAME":refs/origin/heads/"$CI_COMMIT_REF_NAME"
       git checkout --quiet "$CI_COMMIT_SHA"
       git submodule --quiet update --jobs=4 --init --recursive --depth=1
     - |
-      rm -rf /build/*
       docker run -v /build:/build -v /cache:/cache -v /src:/src --rm --cap-add SYS_NICE registry.gitflic.ru/project/mydb-ru/mydb-server/ubuntu:24.04 /src/.gitflic/debug.sh build
       cp /build/debug_log.txt build_log.txt
   artifacts:
