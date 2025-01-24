@@ -31,7 +31,7 @@ test() {
     # for a weird main.loaddata_special failure that only occurs when starting
     # MTR under non-root user in a Docker container
     su - ubuntu <<EOF
-eatmydata /build/mysql-test/mtr --parallel=auto \
+/build/mysql-test/mtr --mem -parallel=auto \
     --suite=default --force --max-test-fail=0 --report-unstable-tests \
     --unit-tests --unit-tests-report < /dev/null
 EOF

@@ -28,7 +28,7 @@ test:
   variables:
     GIT_STRATEGY: none
   script:
-    - docker run -v /build:/build -v /cache:/cache -v /src:/src --rm --cap-add SYS_NICE registry.gitflic.ru/project/mydb-ru/mydb-server/ubuntu:24.04 /src/.gitflic/debug.sh test
+    - docker run --shm-size=32G -v /build:/build -v /cache:/cache -v /src:/src --rm --cap-add SYS_NICE registry.gitflic.ru/project/mydb-ru/mydb-server/ubuntu:24.04 /src/.gitflic/debug.sh test
     - cp /build/debug_log.txt mtr_log.txt
   needs: build
   artifacts:
