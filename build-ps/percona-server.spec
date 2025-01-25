@@ -28,6 +28,9 @@
 %global mydb_vendor MyDB LLC
 %global mysqldatadir /var/lib/mysql
 
+# By default a build will be done in normal mode
+%{?enable_fipsmode: %global enable_fipsmode 1}
+
 %global mysql_version @@MYSQL_VERSION@@
 %global percona_server_version @@PERCONA_VERSION@@
 %global revision @@REVISION@@
@@ -256,6 +259,7 @@ Provides:       MySQL-server%{?_isa} = %{version}-%{release}
 Provides:       mysql-server = %{version}-%{release}
 Provides:       mysql-server%{?_isa} = %{version}-%{release}
 Conflicts:      Percona-SQL-server-50 Percona-Server-server-51 Percona-Server-server-55 Percona-Server-server-56 Percona-Server-server-57
+Conflicts:      percona-server-server-pro
 
 %if 0%{?systemd}
 Requires(post):   systemd
@@ -286,6 +290,7 @@ Group:          Applications/Databases
 Requires:       mydb-shared
 Provides:       mysql-client MySQL-client mysql MySQL
 Conflicts:      Percona-SQL-client-50 Percona-Server-client-51 Percona-Server-client-55 Percona-Server-client-56 Percona-Server-client-57
+Conflicts:      percona-server-client-pro
 
 %description -n mydb-client
 This package contains the standard MyDB Server client and administration tools.
@@ -328,6 +333,7 @@ Obsoletes:      mariadb-test
 Provides:       mysql-test = %{version}-%{release}
 Provides:       mysql-test%{?_isa} = %{version}-%{release}
 Conflicts:      Percona-SQL-test-50 Percona-Server-test-51 Percona-Server-test-55 Percona-Server-test-56 Percona-Server-test-57
+Conflicts:      percona-server-test-pro
 
 %description -n mydb-test
 This package contains the MyDB Server regression test suite.
@@ -341,6 +347,7 @@ Obsoletes:     mysql-connector-c-devel < 6.2
 Provides:       mysql-devel = %{version}-%{release}
 Provides:       mysql-devel%{?_isa} = %{version}-%{release}
 Conflicts:      Percona-SQL-devel-50 Percona-Server-devel-51 Percona-Server-devel-55 Percona-Server-devel-56 Percona-Server-devel-57
+Conflicts:      percona-server-devel-pro
 Obsoletes:      mariadb-connector-c-devel
 %if 0%{?rhel} > 6
 Obsoletes:      mariadb-devel
@@ -358,6 +365,7 @@ Provides:       mysql-libs%{?_isa} = %{version}-%{release}
 Obsoletes:      mariadb-libs
 Obsoletes:      mysql-connector-c-shared < 6.2
 Obsoletes:      mysql-libs < %{version}-%{release}
+Conflicts:      percona-server-shared-pro
 Provides:       mysql-shared
 %ifarch x86_64
 %if 0%{?rhel} < 9
@@ -417,9 +425,16 @@ This package contains the TokuDB plugin for Percona Server %{version}-%{release}
 %package -n mydb-rocksdb
 Summary:        MyDB Server - RocksDB package
 Group:          Applications/Databases
+<<<<<<< HEAD
 Requires:       mydb-server = %{version}-%{release}
 Requires:       mydb-shared = %{version}-%{release}
 Requires:       mydb-client = %{version}-%{release}
+=======
+Requires:       percona-server-server = %{version}-%{release}
+Requires:       percona-server-shared = %{version}-%{release}
+Requires:       percona-server-client = %{version}-%{release}
+Conflicts:      percona-server-rocksdb-pro
+>>>>>>> Percona-Server-8.4.3-3
 
 %description -n mydb-rocksdb
 This package contains the RocksDB plugin for MyDB Server %{version}-%{release}
@@ -431,6 +446,7 @@ Group:         Applications/Databases
 Provides:      mydb-router = %{version}-%{release}
 Obsoletes:     mydb-router < %{version}-%{release}
 Provides:      mysql-router
+Conflicts:     percona-mysql-router-pro
 
 %description -n mydb-router
 The MyDB Router software delivers a fast, multi-threaded way of
@@ -441,6 +457,7 @@ Summary:        Development header files and libraries for MyDB Router
 Group:          Applications/Databases
 Provides:       mydb-router-devel = %{version}-%{release}
 Obsoletes:      mysql-router-devel
+Conflicts:      percona-mysql-router-devel-pro
 
 %description -n mydb-router-devel
 This package contains the development header files and libraries
@@ -539,7 +556,6 @@ mkdir debug
            %{?ssl_option} \
            %{?mecab_option} \
            -DCOMPILATION_COMMENT="%{compilation_comment_debug}" %{TOKUDB_FLAGS} %{TOKUDB_DEBUG_OFF} %{ROCKSDB_FLAGS}
-  echo BEGIN_DEBUG_CONFIG ; egrep '^#define' include/config.h ; echo END_DEBUG_CONFIG
   make %{?_smp_mflags} VERBOSE=1
 )
 # Build full release
@@ -595,7 +611,6 @@ mkdir release
            %{?ssl_option} \
            %{?mecab_option} \
            -DCOMPILATION_COMMENT="%{compilation_comment_release}" %{TOKUDB_FLAGS} %{TOKUDB_DEBUG_OFF} %{ROCKSDB_FLAGS}
-  echo BEGIN_NORMAL_CONFIG ; egrep '^#define' include/config.h ; echo END_NORMAL_CONFIG
   make %{?_smp_mflags} VERBOSE=1
 )
 
@@ -792,7 +807,22 @@ if [ ! -d %{_datadir}/mysql ] && [ ! -L %{_datadir}/mysql ]; then
     ln -s %{_datadir}/percona-server %{_datadir}/mysql
 fi
 
+<<<<<<< HEAD
 %post -n mydb-shared -p /sbin/ldconfig
+=======
+%if 0%{?rhel} >= 9
+if [ -f /usr/lib/systemd/system/mysqld.service ]; then
+  if [ ! -e /etc/systemd/system/mysql.service ] && [ -d /etc/systemd/system ]; then
+    ln -s /usr/lib/systemd/system/mysqld.service /etc/systemd/system/mysql.service
+  fi
+  if [ ! -e /etc/systemd/system/multi-user.target.wants/mysqld.service ] && [ -d /etc/systemd/system/multi-user.target.wants ]; then
+    ln -s /usr/lib/systemd/system/mysqld.service /etc/systemd/system/multi-user.target.wants/mysqld.service
+  fi
+fi
+%endif
+
+%post -n percona-server-shared -p /sbin/ldconfig
+>>>>>>> Percona-Server-8.4.3-3
 
 %postun -n mydb-shared -p /sbin/ldconfig
 
@@ -1546,6 +1576,10 @@ fi
 %{_libdir}/mysqlrouter/private/libmysqlrouter_routing.so.*
 %{_libdir}/mysqlrouter/private/libmysqlrouter_routing_connections.so.*
 %{_libdir}/mysqlrouter/private/libmysqlrouter_destination_status.so.*
+%{_libdir}/mysqlrouter/private/libmysqlrouter_cluster.so.*
+%{_libdir}/mysqlrouter/private/libmysqlrouter_http_server.so.*
+%{_libdir}/mysqlrouter/private/libmysqlrouter_mysql.so.*
+%{_libdir}/mysqlrouter/private/libmysqlrouter_utils.so.*
 %dir %{_libdir}/mysqlrouter
 %dir %{_libdir}/mysqlrouter/private
 %{_libdir}/mysqlrouter/*.so

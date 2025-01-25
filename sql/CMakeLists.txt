@@ -1,4 +1,4 @@
-# Copyright (c) 2006, 2024, Oracle and/or its affiliates.
+﻿# Copyright (c) 2006, 2024, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -877,13 +877,6 @@ ADD_COMPILE_FLAGS(
   COMPILE_FLAGS -I${CMAKE_SOURCE_DIR}/extra/lz4 -I${BUNDLED_LZ4_PATH}
   )
 
-ADD_COMPILE_FLAGS(
-  iterators/composite_iterators.cc
-  iterators/hash_join_buffer.cc
-  COMPILE_FLAGS
-  -I${CMAKE_SOURCE_DIR}/extra/unordered_dense/unordered_dense-4.4.0/include
-  )
-
 # Fixes "C1128: number of sections exceeded object file format limit" in MSVC
 IF(WIN32)
   ADD_COMPILE_FLAGS(
@@ -979,6 +972,9 @@ MYSQL_ADD_PLUGIN(mysql_native_password
   LINK_LIBRARIES extra::boost
   SYSTEM_INCLUDE_DIRECTORIES "${RAPIDJSON_INCLUDE_DIR}"
   STATIC_ONLY DEFAULT)
+
+TARGET_INCLUDE_DIRECTORIES(sql_main SYSTEM PUBLIC
+  ${CMAKE_SOURCE_DIR}/extra/unordered_dense/unordered_dense-4.4.0/include)
 
 TARGET_LINK_LIBRARIES(sql_main ${MYSQLD_STATIC_PLUGIN_LIBS}
   mysql_server_component_services mysys strings vio
@@ -1182,6 +1178,12 @@ LIST(APPEND MYSQLD_SOURCE partitioning/partition_base.cc)
 MYSQL_ADD_EXECUTABLE(mysqld
   ${MYSQLD_SOURCE} DESTINATION ${INSTALL_SBINDIR} COMPONENT Server
   )
+
+# With Ninja, link huge executables one-by-one.
+IF(WIN32)
+  SET_PROPERTY(TARGET mysqld PROPERTY JOB_POOL_LINK one_job)
+ENDIF()
+
 # You may want to redirect output for this one,
 # the list of exported symbols is loooong.
 ADD_OBJDUMP_TARGET(show_mysqld "$<TARGET_FILE:mysqld>" DEPENDS mysqld)
@@ -1222,6 +1224,11 @@ IF(WITH_LTO OR CMAKE_COMPILER_FLAG_WITH_LTO)
   IF(HAS_WARN_FLAG)
     MY_TARGET_LINK_OPTIONS(mysqld "${HAS_WARN_FLAG}")
   ENDIF()
+  # The linker claims that unmasked_server_id is uninitialized.
+  MY_CHECK_CXX_COMPILER_WARNING("error=uninitialized" HAS_WARN_FLAG)
+  IF(HAS_WARN_FLAG)
+    MY_TARGET_LINK_OPTIONS(mysqld "${HAS_WARN_FLAG}")
+  ENDIF()
 ENDIF()
 
 GET_TARGET_PROPERTY(mysqld_link_flags mysqld LINK_FLAGS)
@@ -1229,7 +1236,10 @@ IF(NOT mysqld_link_flags)
   SET(mysqld_link_flags)
 ENDIF()
 
-IF(UNIX_INSTALL_RPATH_ORIGIN_PRIV_LIBDIR OR LINUX_INSTALL_RPATH_ORIGIN)
+IF(UNIX_INSTALL_RPATH_ORIGIN_PRIV_LIBDIR
+    OR LINUX_INSTALL_RPATH_ORIGIN
+    OR TARGET my_tcmalloc
+    )
   # Because of INSTALL_DEBUG_TARGET which does INSTALL(FILES ...)
   IF(UNIX AND NOT APPLE AND CMAKE_BUILD_TYPE_UPPER STREQUAL "DEBUG")
     STRING_APPEND(mysqld_link_flags
@@ -1412,6 +1422,7 @@ MYSQL_ADD_EXECUTABLE(gen_lex_hash gen_lex_hash.cc SKIP_INSTALL)
 IF(HAS_MISSING_PROFILE)
   ADD_COMPILE_FLAGS(
     gen_lex_hash.cc
+    binlog/log_sanitizer.cc
     COMPILE_FLAGS ${HAS_MISSING_PROFILE})
 ENDIF()
 

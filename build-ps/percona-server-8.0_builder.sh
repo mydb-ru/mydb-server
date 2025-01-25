@@ -27,6 +27,7 @@ Usage: $0 [OPTIONS]
         --rpm_release               RPM version( default = 1)
         --deb_release               DEB version( default = 1)
         --debug                     Build debug tarball
+        --enable_fipsmode           Build gated PS
         --help) usage ;;
 Example $0 --builddir=/tmp/PS57 --get_sources=1 --build_src_rpm=1 --build_rpm=1
 EOF
@@ -68,6 +69,7 @@ parse_arguments() {
             --rpm_release=*) RPM_RELEASE="$val" ;;
             --deb_release=*) DEB_RELEASE="$val" ;;
             --debug=*) DEBUG="$val" ;;
+            --enable_fipsmode=*) FIPSMODE="$val" ;;
             --help) usage ;;
             *)
               if test -n "$pick_args"
@@ -607,6 +609,33 @@ build_srpm(){
     sed -i "/^%changelog/a - Release ${VERSION}-${RELEASE}" percona-server.spec
     sed -i "/^%changelog/a * $(date "+%a") $(date "+%b") $(date "+%d") $(date "+%Y") Percona Development Team <info@percona.com> - ${VERSION}-${RELEASE}" percona-server.spec
     #
+    if [[ "x${FIPSMODE}" == "x1" ]]; then
+        sed -i -e "s:percona-server-server$:percona-server-server-pro:g" \
+        -e "s:percona-server-server =:percona-server-server-pro =:g" \
+        -e "s:percona-server-client$:percona-server-client-pro:g" \
+        -e "s:percona-server-client =:percona-server-client-pro =:g" \
+        -e "s:percona-server-devel$:percona-server-devel-pro:g" \
+        -e "s:percona-mysql-router$:percona-mysql-router-pro:g" \
+        -e "s:percona-mysql-router :percona-mysql-router-pro :g" \
+        -e "s:percona-mysql-router-devel$:percona-mysql-router-devel-pro:g" \
+        -e "s:percona-mysql-router-devel =:percona-mysql-router-devel-pro =:g" \
+        -e "s:percona-server-rocksdb$:percona-server-rocksdb-pro:g" \
+        -e "s:percona-server-test$:percona-server-test-pro:g" \
+        -e "s:percona-server-shared$:percona-server-shared-pro:g" \
+        -e "s:percona-server-shared :percona-server-shared-pro :g" \
+        -e "s:Conflicts\:      percona-server-server-pro:Conflicts\:      percona-server-server:g" \
+        -e "s:Conflicts\:      percona-server-client-pro:Conflicts\:      percona-server-client:g" \
+        -e "s:Conflicts\:      percona-server-test-pro:Conflicts\:      percona-server-test:g" \
+        -e "s:Conflicts\:      percona-server-devel-pro:Conflicts\:      percona-server-devel:g" \
+        -e "s:Conflicts\:      percona-server-rocksdb-pro:Conflicts\:      percona-server-rocksdb:g" \
+        -e "s:Conflicts\:     percona-mysql-router-pro:Conflicts\:     percona-mysql-router:g" \
+        -e "s:Conflicts\:      percona-mysql-router-devel-pro:Conflicts\:      percona-mysql-router-devel:g" \
+        -e "s:Conflicts\:      percona-server-test-pro:Conflicts\:      percona-server-test:g" \
+        -e "s:Conflicts\:      percona-server-shared-pro:Conflicts\:      percona-server-shared:g" \
+        -e "s:Name\:           percona-server:Name\:           percona-server-pro:g" \
+        percona-server.spec
+    fi
+    #
     cd ${WORKDIR}/rpmbuild/SOURCES
     tar vxzf ${WORKDIR}/${TARFILE} --wildcards '*/build-ps/rpm/*.patch' --strip=3
     tar vxzf ${WORKDIR}/${TARFILE} --wildcards '*/build-ps/rpm/filter-provides.sh' --strip=3
@@ -746,9 +775,17 @@ build_rpm(){
         source /opt/rh/devtoolset-11/enable
     fi
     if [ ${ARCH} = x86_64 ]; then
-        rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .el${RHEL}" --define "with_mecab ${MECAB_INSTALL_DIR}/usr" --rebuild rpmbuild/SRPMS/${SRCRPM}
+        if [[ "x${FIPSMODE}" == "x1" ]]; then
+            rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .el${RHEL}" --define "with_mecab ${MECAB_INSTALL_DIR}/usr" --define "enable_fipsmode 1" --rebuild rpmbuild/SRPMS/${SRCRPM}
+        else
+            rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .el${RHEL}" --define "with_mecab ${MECAB_INSTALL_DIR}/usr" --rebuild rpmbuild/SRPMS/${SRCRPM}
+        fi
     else
-        rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .el${RHEL}" --define "with_tokudb 0" --define "with_mecab ${MECAB_INSTALL_DIR}/usr" --rebuild rpmbuild/SRPMS/${SRCRPM}
+        if [[ "x${FIPSMODE}" == "x1" ]]; then
+            rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .el${RHEL}" --define "with_tokudb 0" --define "with_mecab ${MECAB_INSTALL_DIR}/usr" --define "enable_fipsmode 1" --rebuild rpmbuild/SRPMS/${SRCRPM}
+        else
+            rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "dist .el${RHEL}" --define "with_tokudb 0" --define "with_mecab ${MECAB_INSTALL_DIR}/usr" --rebuild rpmbuild/SRPMS/${SRCRPM}
+        fi
     fi
 
     if [ $RHEL = 6 ]; then
@@ -841,6 +878,10 @@ build_deb(){
     DIRNAME=$(echo ${DSC%-${DEB_RELEASE}.dsc} | sed -e 's:_:-:g')
     VERSION=$(echo ${DSC} | sed -e 's:_:-:g' | awk -F'-' '{print $3}')
     RELEASE=$(echo ${DSC} | sed -e 's:_:-:g' | awk -F'-' '{print $4}')
+    if [[ "x${FIPSMODE}" == "x1" ]]; then
+        VERSION=$(echo ${DSC} | sed -e 's:_:-:g' | awk -F'-' '{print $4}')
+        RELEASE=$(echo ${DSC} | sed -e 's:_:-:g' | awk -F'-' '{print $5}')
+    fi
     ARCH=$(uname -m)
     export EXTRAVER=${MYSQL_VERSION_EXTRA#-}
     #
@@ -938,16 +979,20 @@ build_tarball(){
         cp -av /usr/include/openssl ${WORKDIR}/ssl/include/
     fi
 
+    if [[ "x${FIPSMODE}" == "x1" ]]; then
+        BUILD_PARAMETER="--enable-fipsmode "
+    fi
+
     cd ${TARFILE%.tar.gz}
     if [ "x$WITH_SSL" = "x1" ]; then
         CMAKE_OPTS="-DMINIMAL_RELWITHDEBINFO=OFF -DWITH_ROCKSDB=1 -DINSTALL_LAYOUT=STANDALONE -DWITH_SSL=$PWD/../ssl/ " bash -xe ./build-ps/build-binary.sh --with-mecab="${MECAB_INSTALL_DIR}/usr" --with-jemalloc=../jemalloc/ ../TARGET
         DIRNAME="yassl"
     else
         if [[ "${DEBUG}" == 1 ]]; then
-            CMAKE_OPTS="-DWITH_ROCKSDB=1" bash -xe ./build-ps/build-binary.sh --debug --with-mecab="${MECAB_INSTALL_DIR}/usr" --with-jemalloc=../jemalloc/ ../TARGET
+            CMAKE_OPTS="-DWITH_ROCKSDB=1" bash -xe ./build-ps/build-binary.sh --debug ${BUILD_PARAMETER}--with-mecab="${MECAB_INSTALL_DIR}/usr" --with-jemalloc=../jemalloc/ ../TARGET
             DIRNAME="tarball"
         else
-            CMAKE_OPTS="-DMINIMAL_RELWITHDEBINFO=OFF -DWITH_ROCKSDB=1" bash -xe ./build-ps/build-binary.sh --with-mecab="${MECAB_INSTALL_DIR}/usr" --with-jemalloc=../jemalloc/ ../TARGET
+            CMAKE_OPTS="-DMINIMAL_RELWITHDEBINFO=OFF -DWITH_ROCKSDB=1" bash -xe ./build-ps/build-binary.sh ${BUILD_PARAMETER}--with-mecab="${MECAB_INSTALL_DIR}/usr" --with-jemalloc=../jemalloc/ ../TARGET
             DIRNAME="tarball"
         fi
     fi
