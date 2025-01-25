@@ -1,0 +1,43 @@
+build:
+  stage: build
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - |
+      cd /src
+      git config --global --add safe.directory /src
+      git status ||
+      {
+        rm -rf * .*
+        mkdir -p git-template
+        git config --file=/src/git-template/config init.defaultBranch none
+        git config --file=/src/git-template/config fetch.recurseSubmodules false
+        git init --template=/src/git-template .
+        git remote add origin "${CI_PROJECT_URL}.git"
+      }
+      git fetch --depth=50 --quiet origin refs/heads/"$CI_COMMIT_REF_NAME":refs/origin/heads/"$CI_COMMIT_REF_NAME"
+      git checkout --quiet "$CI_COMMIT_SHA"
+      git submodule --quiet update --jobs=4 --init --recursive --depth=1
+    - |
+      docker run -v /build:/build -v /cache:/cache -v /src:/src --rm --cap-add SYS_NICE registry.gitflic.ru/project/mydb-ru/mydb-server/ubuntu:24.04 /src/.gitflic/debug.sh build
+      cp /build/debug_log.txt build_log.txt
+  artifacts:
+    name: build_log
+    paths:
+      - build_log.txt
+    expire_in: 3 days
+
+test:
+  stage: test
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - |
+      docker run --shm-size=32G -v /build:/build -v /cache:/cache -v /src:/src --rm --cap-add SYS_NICE registry.gitflic.ru/project/mydb-ru/mydb-server/ubuntu:24.04 /src/.gitflic/debug.sh test
+      cp /build/debug_log.txt mtr_log.txt
+  needs: build
+  artifacts:
+    name: mtr_log
+    paths:
+      - mtr_log.txt
+    expire_in: 3 days

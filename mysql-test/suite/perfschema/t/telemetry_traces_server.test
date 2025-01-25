@@ -363,9 +363,10 @@ SET @orig_infile= @@GLOBAL.local_infile;
 SET GLOBAL local_infile = 1;
 CREATE TABLE tload (c1 TEXT);
 --query_attributes trace on
---copy_file $MYSQLTEST_VARDIR_ABS/std_data/numbers.txt tmp1.txt
---eval LOAD DATA LOCAL INFILE 'tmp1.txt' INTO TABLE tload;
---remove_file tmp1.txt
+--copy_file $MYSQLTEST_VARDIR_ABS/std_data/numbers.txt $MYSQL_TMP_DIR/tmp1.txt
+--replace_result $MYSQL_TMP_DIR MYSQL_TMP_DIR
+--eval LOAD DATA LOCAL INFILE '$MYSQL_TMP_DIR/tmp1.txt' INTO TABLE tload;
+--remove_file $MYSQL_TMP_DIR/tmp1.txt
 DROP TABLE tload;
 SET GLOBAL local_infile = @orig_infile;
 
@@ -438,6 +439,7 @@ UPDATE performance_schema.setup_consumers SET ENABLED = 'YES' WHERE NAME LIKE '%
 
 let $MYSQLD_DATADIR= `select @@datadir`;
 --echo Component logs:
+--replace_result $MYSQL_TMP_DIR MYSQL_TMP_DIR
 cat_file $MYSQLD_DATADIR/test_server_telemetry_traces_component.log;
 remove_file $MYSQLD_DATADIR/test_server_telemetry_traces_component.log;
 remove_file $MYSQLTEST_VARDIR/tmp/test_telemetry_traces_server.sql;

@@ -56,7 +56,9 @@ this program; if not, write to the Free Software Foundation, Inc.,
 #define INNODB_VERSION_BUGFIX MYSQL_VERSION_PATCH
 
 #ifndef PERCONA_INNODB_VERSION
-#define PERCONA_INNODB_VERSION 1
+#define PERCONA_INNODB_SUFFIX MYSQL_VERSION_EXTRA
+#else
+#define PERCONA_INNODB_SUFFIX "-" IB_TO_STR(PERCONA_INNODB_VERSION)
 #endif
 
 /* The following is the InnoDB version as shown in
@@ -70,7 +72,7 @@ component, i.e. we show M.N.P as M.N */
 #define INNODB_VERSION_STR                           \
   IB_TO_STR(INNODB_VERSION_MAJOR)                    \
   "." IB_TO_STR(INNODB_VERSION_MINOR) "." IB_TO_STR( \
-      INNODB_VERSION_BUGFIX) "-" IB_TO_STR(PERCONA_INNODB_VERSION)
+      INNODB_VERSION_BUGFIX) PERCONA_INNODB_SUFFIX
 
 #define REFMAN                                  \
   "http://dev.mysql.com/doc/refman/" IB_TO_STR( \

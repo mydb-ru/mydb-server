@@ -288,7 +288,7 @@ SELECT 13;
 SET @orig_infile= @@GLOBAL.local_infile;
 SET GLOBAL local_infile = 1;
 CREATE TABLE tload (c1 TEXT);
-LOAD DATA LOCAL INFILE 'tmp1.txt' INTO TABLE tload;;
+LOAD DATA LOCAL INFILE 'MYSQL_TMP_DIR/tmp1.txt' INTO TABLE tload;;
 DROP TABLE tload;
 SET GLOBAL local_infile = @orig_infile;
 # Test interaction between validate_password component and telemetry
@@ -743,8 +743,8 @@ End of init
  > tm_stmt_notify_qa: skip tracing, no qa (depth=1, with_qa=0, user=root, query='CREATE TABLE tload (c1 TEXT)')
 > tm_stmt_start: proceed further (depth=1, user=root, host=localhost, db=test, query='')
 > tm_stmt_notify_qa: all query attributes [{"trace": "on"}]
-> tm_stmt_notify_qa: proceed further (depth=1, with_qa=1, user=root, query='LOAD DATA LOCAL INFILE 'tmp1.txt' INTO TABLE tload', app[], call[])
-> tm_stmt_end: trace statement (depth=1, user=root, query='', query1='LOAD DATA LOCAL INFILE 'tmp1.txt' INTO TABLE tload', digest='LOAD DATA LOCAL INFILE ? INTO TABLE `tload`', app[], call[])
+> tm_stmt_notify_qa: proceed further (depth=1, with_qa=1, user=root, query='LOAD DATA LOCAL INFILE 'MYSQL_TMP_DIR/tmp1.txt' INTO TABLE tload', app[], call[])
+> tm_stmt_end: trace statement (depth=1, user=root, query='', query1='LOAD DATA LOCAL INFILE 'MYSQL_TMP_DIR/tmp1.txt' INTO TABLE tload', digest='LOAD DATA LOCAL INFILE ? INTO TABLE `tload`', app[], call[])
 > tm_stmt_start: proceed further (depth=1, user=root, host=localhost, db=test, query='')
  > tm_stmt_notify_qa: skip tracing, no qa (depth=1, with_qa=0, user=root, query='DROP TABLE tload')
 > tm_stmt_start: proceed further (depth=1, user=root, host=localhost, db=test, query='')
