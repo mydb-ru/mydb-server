@@ -170,11 +170,6 @@ get_sources(){
             echo "Extra version differs from defined in version file"
             exit 1
         fi
-        INNODB_VER=$(grep "define PERCONA_INNODB_VERSION" ./storage/innobase/include/univ.i | awk '{print $3}')
-        if [ ${INNODB_VER} != ${EXTRA} ]; then
-            echo "InnoDB version differs from defined in version file"
-            exit 1
-        fi
         if [ ${BUILD_TOKUDB_TOKUBACKUP} = 1 ]; then
             FT_TAG=$(git ls-remote --tags https://github.com/percona/PerconaFT.git | grep -c ${PERCONAFT_BRANCH})
             if [ ${FT_TAG} = 0 ]; then
