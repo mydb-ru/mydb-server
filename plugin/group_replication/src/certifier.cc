@@ -1302,13 +1302,28 @@ void Certifier::garbage_collect() {
   ulonglong starttime = my_micro_time();
 
   Certification_info::iterator it = certification_info.begin();
+<<<<<<< HEAD
 
   /*
     The goal of the following loop is to avoid locking for too long transactions
     on servers that have a high rate of trx. Processing 1M GTIDs in the original
     code blocked the transaction processing for about 1s.
   */
+||||||| 89e1c722476d
+  stable_gtid_set_lock->wrlock();
+=======
+  stable_gtid_set_lock->wrlock();
+
+  uint64 garbage_collector_counter = garbage_collect_runs;
+
+  DBUG_EXECUTE_IF("group_replication_garbage_collect_counter_overflow", {
+    DBUG_SET("-d,group_replication_garbage_collect_counter_overflow");
+    garbage_collector_counter = 0;
+  });
+
+>>>>>>> mysql-8.0.41
   while (it != certification_info.end()) {
+<<<<<<< HEAD
     stable_gtid_set_lock->wrlock();
 
     /* Needs to increase the rate if it takes too long, add a chunk every 5s */
@@ -1322,7 +1337,38 @@ void Certifier::garbage_collect() {
     for (ulong i = 0; i < chunk_size; ++i) {
       if (it == certification_info.end()) {
         break;
+||||||| 89e1c722476d
+    if (it->second->is_subset_not_equals(stable_gtid_set)) {
+      if (it->second->unlink() == 0) {
+        /*
+          Claim Gtid_set_ref used memory to
+          `thread/group_rpl/THD_certifier_broadcast` thread, since this is
+          thread that does release the memory.
+        */
+        it->second->claim_memory_ownership(true);
+        delete it->second;
+=======
+    uint64 write_set_counter = it->second->get_garbage_collect_counter();
+
+    /*
+       we need to clear gtid_set_ref if marked with UINT64_MAX or
+       subset_not_equals of stable_gtid_set
+    */
+    if (write_set_counter == UINT64_MAX ||
+        (write_set_counter < garbage_collector_counter &&
+         it->second->is_subset_not_equals(stable_gtid_set))) {
+      it->second->set_garbage_collect_counter(UINT64_MAX);
+      if (it->second->unlink() == 0) {
+        /*
+          Claim Gtid_set_ref used memory to
+          `thread/group_rpl/THD_certifier_broadcast` thread, since this is
+          thread that does release the memory.
+        */
+        it->second->claim_memory_ownership(true);
+        delete it->second;
+>>>>>>> mysql-8.0.41
       }
+<<<<<<< HEAD
       if (it->second->is_subset_not_equals(stable_gtid_set)) {
         if (it->second->unlink() == 0) {
           /*
@@ -1362,6 +1408,26 @@ void Certifier::garbage_collect() {
       }
     }
   } /* while loop */
+||||||| 89e1c722476d
+      certification_info.erase(it++);
+    } else
+      ++it;
+  }
+  stable_gtid_set_lock->unlock();
+=======
+      certification_info.erase(it++);
+    } else {
+      DBUG_EXECUTE_IF("group_replication_ci_rows_counter_high",
+                      { assert(write_set_counter > 0); });
+      it->second->set_garbage_collect_counter(garbage_collector_counter);
+      ++it;
+    }
+  }
+  stable_gtid_set_lock->unlock();
+>>>>>>> mysql-8.0.41
+
+  /* Incrememnt number of garbage collect runs*/
+  garbage_collect_runs++;
 
   /*
     We need to update parallel applier indexes since we do not know

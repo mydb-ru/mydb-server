@@ -185,16 +185,27 @@ IF(FREEBSD)
   ADD_COMPILE_FLAGS(stacktrace.cc COMPILE_FLAGS ${LIBUNWIND_CFLAGS})
 ENDIF()
 
+<<<<<<< HEAD
 IF (WITH_COREDUMPER)
   INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/extra/coredumper/include)
 ENDIF()
 
+||||||| 89e1c722476d
+=======
+IF(WITH_EXT_BACKTRACE)
+  SET(BACKTRACE_LIBRARIES ext::backtrace)
+ELSE()
+  UNSET(BACKTRACE_LIBRARIES)
+ENDIF()
+
+>>>>>>> mysql-8.0.41
 ADD_CONVENIENCE_LIBRARY(mysys ${MYSYS_SOURCES}
   LINK_LIBRARIES
   mytime
   strings
   ext::zlib
   ext::zstd
+  ${BACKTRACE_LIBRARIES}
   ${LIBNSL}
   ${LIBM}
   ${LIBRT}
