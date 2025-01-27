@@ -425,16 +425,9 @@ This package contains the TokuDB plugin for Percona Server %{version}-%{release}
 %package -n mydb-rocksdb
 Summary:        MyDB Server - RocksDB package
 Group:          Applications/Databases
-<<<<<<< HEAD
 Requires:       mydb-server = %{version}-%{release}
 Requires:       mydb-shared = %{version}-%{release}
 Requires:       mydb-client = %{version}-%{release}
-=======
-Requires:       percona-server-server = %{version}-%{release}
-Requires:       percona-server-shared = %{version}-%{release}
-Requires:       percona-server-client = %{version}-%{release}
-Conflicts:      percona-server-rocksdb-pro
->>>>>>> Percona-Server-8.4.3-3
 
 %description -n mydb-rocksdb
 This package contains the RocksDB plugin for MyDB Server %{version}-%{release}
@@ -807,9 +800,6 @@ if [ ! -d %{_datadir}/mysql ] && [ ! -L %{_datadir}/mysql ]; then
     ln -s %{_datadir}/percona-server %{_datadir}/mysql
 fi
 
-<<<<<<< HEAD
-%post -n mydb-shared -p /sbin/ldconfig
-=======
 %if 0%{?rhel} >= 9
 if [ -f /usr/lib/systemd/system/mysqld.service ]; then
   if [ ! -e /etc/systemd/system/mysql.service ] && [ -d /etc/systemd/system ]; then
@@ -821,8 +811,7 @@ if [ -f /usr/lib/systemd/system/mysqld.service ]; then
 fi
 %endif
 
-%post -n percona-server-shared -p /sbin/ldconfig
->>>>>>> Percona-Server-8.4.3-3
+%post -n mydb-shared -p /sbin/ldconfig
 
 %postun -n mydb-shared -p /sbin/ldconfig
 
