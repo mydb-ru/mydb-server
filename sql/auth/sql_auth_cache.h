@@ -833,11 +833,6 @@ class Acl_restrictions {
   malloc_unordered_map<std::string, Restrictions> m_restrictions_map;
 };
 
-<<<<<<< HEAD
-extern ACL_USER acl_utility_user;
-
-||||||| 89e1c722476d
-=======
 /**
   Enables preserving temporary account locking attributes during ACL DDL.
   Enables restoring temporary account locking attributes after ACL reload.
@@ -890,5 +885,6 @@ class ACL_temporary_lock_state {
   const long m_daynr_locked;
 };
 
->>>>>>> mysql-8.0.41
+extern ACL_USER acl_utility_user;
+
 #endif /* SQL_USER_CACHE_INCLUDED */

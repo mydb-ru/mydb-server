@@ -75,19 +75,15 @@ MYSQL_ADD_EXECUTABLE(mysqltest
   ENABLE_EXPORTS
   LINK_LIBRARIES perconaserverclient
   )
-<<<<<<< HEAD
+
 IF (WITH_COREDUMPER)
   TARGET_LINK_LIBRARIES(mysqltest coredumper)
 ENDIF()
-
-||||||| 89e1c722476d
-=======
 
 IF(MY_COMPILER_IS_GNU AND (WITH_LTO OR CMAKE_COMPILER_FLAG_WITH_LTO))
   TARGET_LINK_OPTIONS(mysqltest PRIVATE -Wno-error=stringop-overflow)
 ENDIF()
 
->>>>>>> mysql-8.0.41
 MYSQL_ADD_EXECUTABLE(mysqlcheck
   check/mysqlcheck.cc
   check/mysqlcheck_core.cc

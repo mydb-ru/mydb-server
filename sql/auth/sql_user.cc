@@ -3475,13 +3475,8 @@ bool mysql_alter_user(THD *thd, List<LEX_USER> &list, bool if_exists) {
       return true;
     }
 
-<<<<<<< HEAD
-
-||||||| 89e1c722476d
-=======
     Lock_state_list modified_user_lock_state_list;
 
->>>>>>> mysql-8.0.41
     if (check_system_user_privilege(thd, list)) {
       commit_and_close_mysql_tables(thd);
       return true;
