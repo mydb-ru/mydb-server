@@ -182,9 +182,10 @@ EOF
 	else
 		if [ -f "/etc/apparmor.d/usr.sbin.mysqld" ]; then
 			check_apparmor_files
+		else
+			mv -f /etc/apparmor.d/usr.sbin.mysqld.in2 /etc/apparmor.d/usr.sbin.mysqld 2> /dev/null || true
                 fi
 		rm -f /etc/apparmor.d/old_apparmor
-		mv -f /etc/apparmor.d/usr.sbin.mysqld.in2 /etc/apparmor.d/usr.sbin.mysqld 2> /dev/null || true
 		if aa-status --enabled 2>/dev/null; then
 			apparmor_parser -r -T -W /etc/apparmor.d/usr.sbin.mysqld 2>/dev/null || true
                 fi

@@ -31,6 +31,7 @@ COMMON_FLAGS=''
 TOKUDB_BACKUP_VERSION=''
 # enable asan
 ENABLE_ASAN=0
+FIPSMODE=0
 #
 # Some programs that may be overriden
 TAR=${TAR:-tar}
@@ -39,7 +40,7 @@ TAR=${TAR:-tar}
 if ! getopt --test
 then
     go_out="$(getopt --options=iqdvj:m:t: \
-        --longoptions=i686,quiet,debug,valgrind,with-jemalloc:,with-mecab:,with-ssl:,tag: \
+        --longoptions=i686,quiet,debug,valgrind,with-jemalloc:,enable-fipsmode,with-mecab:,with-ssl:,tag: \
         --name="$(basename "$0")" -- "$@")"
     test $? -eq 0 || exit 1
     eval set -- $go_out
@@ -103,6 +104,12 @@ do
             echo >&2 "Cannot find libssl.a in $WITH_SSL"
             exit 3
         fi
+        ;;
+    --enable-fipsmode )
+        shift
+        FIPSMODE=1
+        WITH_SSL="OFF"
+        BUILD_COMMENT="${BUILD_COMMENT:-}-pro"
         ;;
     -t | --tag )
         shift
@@ -214,8 +221,9 @@ if [ -n "$(command -v rpm)" ]; then
   if test "x$CMAKE_BUILD_TYPE" = "xDebug"
   then
     COMMON_FLAGS=`echo " ${COMMON_FLAGS} " | \
-              sed -e 's/ -O[0-9]* / /' \
-                  -e 's/-Wp,-D_FORTIFY_SOURCE=2/ /' \
+              sed -e 's/-Wall/-Wall -Wno-error=stringop-overflow -Wno-error=restrict -Wno-error=maybe-uninitialized -Wno-error=array-bounds -Wno-error=alloc-size-larger-than= -Wno-error=stringop-truncation/' \
+            #  sed -e 's/ -O[0-9]* / /' \
+                  -e 's/-Wp,-D_FORTIFY_SOURCE=2//' \
                   -e 's/ -unroll2 / /' \
                   -e 's/ -ip / /' \
                   -e 's/^ //' \
@@ -301,8 +309,11 @@ fi
 )
 
 (
-
-    LIBLIST="libaio.so.1 libnuma.so.1 libgssapi.so libldap_r-2.4.so.2 libldap.so.2 liblber-2.4.so.2 liblber.so.2 libtinfo.so libsasl2.so libbrotlidec.so libbrotlicommon.so librtmp.so libgssapi_krb5.so libkrb5.so libk5crypto.so libsmime3.so libnss3.so libssl3.so libnssutil3.so libplc4.so libnspr4.so libplds4.so libncurses.so.5 libtinfo.so.5 component_encryption_udf.so component_uuid_vx_udf.so component_keyring_kms.so component_masking_functions.so"
+if [ x"${FIPSMODE}" == x1 ]; then
+    LIBLIST="libgssapi.so libldap_r-2.4.so.2 libldap.so.2 liblber-2.4.so.2 liblber.so.2 libreadline.so libtinfo.so libbrotlidec.so libbrotlicommon.so librtmp.so libgssapi_krb5.so libkrb5.so libssl3.so libsmime3.so libnss3.so libnssutil3.so libplc4.so libnspr4.so libplds4.so libncurses.so.5 libtinfo.so.5 component_encryption_udf.so component_keyring_kms.so component_masking_functions.so"
+else
+    LIBLIST="libgssapi.so libldap_r-2.4.so.2 libldap.so.2 liblber-2.4.so.2 liblber.so.2 libcrypto.so libssl.so libreadline.so libtinfo.so libsasl2.so libbrotlidec.so libbrotlicommon.so librtmp.so libgssapi_krb5.so libkrb5.so libk5crypto.so libssl3.so libsmime3.so libnss3.so libnssutil3.so libplc4.so libnspr4.so libssl3.so libplds4.so libncurses.so.5 libtinfo.so.5 component_encryption_udf.so component_keyring_kms.so component_masking_functions.so"
+fi
     DIRLIST="bin lib lib/private lib/plugin lib/mysqlrouter/plugin lib/mysqlrouter/private"
 
     LIBPATH=""

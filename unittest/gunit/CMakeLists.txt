@@ -84,6 +84,8 @@ ADD_STATIC_LIBRARY(gunit_large
   thread_utils.cc
   LINK_LIBRARIES ext::icu ext::zlib
 )
+TARGET_INCLUDE_DIRECTORIES(gunit_large SYSTEM PRIVATE 
+  ${CMAKE_SOURCE_DIR}/extra/unordered_dense/unordered_dense-4.4.0/include)
 
 # Add a library for enable_win_jemalloc.cc
 # and link it with both gunit_small and gunit_large below.
@@ -312,7 +314,15 @@ IF(LINUX_ALPINE)
 ENDIF()
 
 IF(MY_COMPILER_IS_GNU AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 12)
-  ADD_COMPILE_FLAGS(regexp_engine-t.cc COMPILE_FLAGS "-Wno-restrict")
+  ADD_COMPILE_FLAGS(
+    regexp_engine-t.cc
+    gis_area-t.cc
+    gis_is_simple-t.cc
+    gis_isvalid-t.cc
+    gis_relops-t.cc
+    gis_setops-t.cc
+    COMPILE_FLAGS "-Wno-restrict"
+  )
 ENDIF()
 
 IF(WIN32)
@@ -376,6 +386,7 @@ MYSQL_ADD_EXECUTABLE(merge_small_tests-t ${ALL_SMALL_TESTS}
   ENABLE_EXPORTS
   LINK_LIBRARIES sqlgunitlib gunit_small extra::rapidjson extra::boost
   )
+DOWNGRADE_STRINGOP_WARNINGS(merge_small_tests-t)
 
 LIST(APPEND ALL_LARGE_TESTS ../../storage/example/ha_example.cc)
 
@@ -384,6 +395,13 @@ MYSQL_ADD_EXECUTABLE(merge_large_tests-t ${ALL_LARGE_TESTS}
   ENABLE_EXPORTS
   LINK_LIBRARIES gunit_large server_unittest_library
   )
+IF(MY_COMPILER_IS_GNU)
+  MY_TARGET_LINK_OPTIONS(merge_large_tests-t "-Wno-alloc-size-larger-than")
+ENDIF()
+
+TARGET_INCLUDE_DIRECTORIES(merge_large_tests-t SYSTEM PRIVATE
+  ${CMAKE_SOURCE_DIR}/extra/unordered_dense/unordered_dense-4.4.0/include)
+
 
 FOREACH(test ${TESTS})
   MYSQL_ADD_EXECUTABLE(${test}-t ${test}-t.cc
