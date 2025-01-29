@@ -135,7 +135,7 @@ class Thread_pool_connection_handler : public Connection_handler {
 
   uint get_max_threads() const override { return threadpool_max_threads; }
 
-  void post_daemonize_init() override { start_timer_thread(); }
+  void post_daemonize_init() override { tp_start_timer_thread(); }
 };
 
 #endif  // CONNECTION_HANDLER_IMPL_INCLUDED

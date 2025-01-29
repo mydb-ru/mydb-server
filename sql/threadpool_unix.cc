@@ -612,7 +612,7 @@ static void start_timer(pool_timer_t *timer) noexcept {
   DBUG_VOID_RETURN;
 }
 
-void start_timer_thread() noexcept {
+void tp_start_timer_thread() noexcept {
   pool_timer.tick_interval = threadpool_stall_limit;
   start_timer(&pool_timer);
 }

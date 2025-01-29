@@ -8158,13 +8158,10 @@ int mysqld_main(int argc, char **argv)
   }
 #endif
 
-  if (Connection_handler_manager::thread_handling ==
-      Connection_handler_manager::SCHEDULER_THREAD_POOL) {
-    // If --thread-handling=pool-of-threads is specified,
-    // the timer thread should start only after the daemon process has begun,
-    // provided that --daemonize was also specified.
-    Connection_handler_manager::get_instance()->post_daemonize_init();
-  }
+  // Post daemonization operations performed
+  // such as initializing the timer_thread when using
+  // --thread-handling=pool-of-threads
+  Connection_handler_manager::get_instance()->post_daemonize_init();
 
 #ifndef _WIN32
   user_info = check_user(mysqld_user);
