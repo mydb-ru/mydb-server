@@ -3492,13 +3492,8 @@ bool mysql_alter_user(THD *thd, List<LEX_USER> &list, bool if_exists) {
       return true;
     }
 
-<<<<<<< HEAD
-
-||||||| merged common ancestors
-=======
     Lock_state_list modified_user_lock_state_list;
 
->>>>>>> mysql-8.4.4
     if (check_system_user_privilege(thd, list)) {
       commit_and_close_mysql_tables(thd);
       return true;
