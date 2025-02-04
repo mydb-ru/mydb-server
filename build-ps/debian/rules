@@ -21,6 +21,7 @@ else
 endif
 TOKUDB_BACKUP_VERSION = "@@TOKUDB_BACKUP_VERSION@@"
 
+V8PWD=
 TMP=$(CURDIR)/debian/tmp/
 TMPD=$(CURDIR)/debian/tmp-debug/
 prefix=/usr
@@ -103,6 +104,7 @@ ifeq ($(SKIP_DEBUG_BINARY),)
 		-DWITH_NUMA=ON \
 		-DWITH_LDAP=system \
 		-DWITH_PERCONA_TELEMETRY=ON \
+		-DWITH_JS_LANG=ON -DV8_INCLUDE_DIR=$(V8PWD)/include -DV8_LIB_DIR=$(V8PWD)/out.gn/static/obj \
 		-DWITH_EXTRA_CHARSETS=all $(TOKUDB_OPTS_DEBUG) ..
 endif
 
@@ -152,6 +154,7 @@ endif
 		-DWITH_NUMA=ON \
 		-DWITH_LDAP=system \
 		-DWITH_PERCONA_TELEMETRY=ON \
+		-DWITH_JS_LANG=ON -DV8_INCLUDE_DIR=$(V8PWD)/include -DV8_LIB_DIR=$(V8PWD)/out.gn/static/obj \
 		-DWITH_EXTRA_CHARSETS=all $(TOKUDB_OPTS_RELEASE) ..
 
 	touch $@
