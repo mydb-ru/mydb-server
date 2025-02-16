@@ -1,0 +1,21 @@
+name: Mirroring
+
+on: [push, delete]
+
+jobs:
+  to_gitflic:
+    runs-on: ubuntu-24.04
+    steps:                                              # <-- must use actions/checkout@v1 before mirroring!
+    - uses: actions/checkout@v4
+      with:
+        ref: 8.4
+    - name: push
+      run: |
+        mkdir -p ~/.ssh
+        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        export GIT_SSH_COMMAND="ssh -v -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no"
+        git remote add mirror git@gitflic.ru:mydb-ru/mydb-server.git
+        git push --tags --force --prune mirror
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.GITFLIC_SSH_KEY }}
