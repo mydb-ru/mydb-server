@@ -617,12 +617,16 @@ bool AuditLogFilter::get_connection_user(Security_context_handle &ctx,
     return false;
   }
 
-  if (user.length == 0 || host.length == 0) {
-    return false;
+  if (user.length == 0) {
+    user_name.clear();
+  } else {
+    user_name.assign(user.str, user.length);
   }
-
-  user_name = user.str;
-  user_host = host.str;
+  if (host.length == 0) {
+    user_host.clear();
+  } else {
+    user_host.assign(host.str, host.length);
+  }
 
   return true;
 }
