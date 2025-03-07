@@ -102,6 +102,8 @@ ifeq ($(SKIP_DEBUG_BINARY),)
 		-DWITH_LIBEVENT=bundled \
 		-DWITH_FIDO=bundled \
                 -DWITH_ENCRYPTION_UDF=ON \
+		-DWITH_ASAN=1 \
+		-DWITH_ASAN_SCOPE=1 \
 		-DWITH_NUMA=ON \
 		-DWITH_LDAP=system \
 		-DWITH_EXTRA_CHARSETS=all $(TOKUDB_OPTS_DEBUG) ..
@@ -152,6 +154,8 @@ endif
 		-DWITH_LIBEVENT=bundled \
 		-DWITH_FIDO=bundled \
 		-DWITH_ENCRYPTION_UDF=ON \
+		-DWITH_ASAN=1 \
+		-DWITH_ASAN_SCOPE=1 \
 		-DWITH_NUMA=ON \
 		-DWITH_LDAP=system \
 		-DWITH_EXTRA_CHARSETS=all $(TOKUDB_OPTS_RELEASE) ..
@@ -216,7 +220,7 @@ override_dh_install:
 	@echo "RULES.$@"
 
 override_dh_strip:
-	dh_strip --dbg-package=percona-server-dbg
+#	dh_strip --dbg-package=percona-server-dbg
 	dh_strip -Xlibprotobuf-lite
 
 override_dh_shlibdeps:

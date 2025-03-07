@@ -157,6 +157,7 @@ get_sources(){
 	exit 1
     fi
     IS_RELEASE_BRANCH=$(echo ${BRANCH} | grep -c release);
+    BRANCH="release-8.0.35-27"
     if [ ${IS_RELEASE_BRANCH} != 0 ]; then
         IFS='.' read -r MAJOR MINOR PATCH <<< $(echo $BRANCH | awk -F'-' '{print $2}')
         EXTRA=$(echo $BRANCH | awk -F'-' '{print $3}')
@@ -1202,25 +1203,25 @@ OS=
 TOKUBACKUP_REPO=
 PERCONAFT_REPO=
 INSTALL=0
-RPM_RELEASE=1
-DEB_RELEASE=1
+RPM_RELEASE=2
+DEB_RELEASE=2
 DEBUG=0
 REVISION=0
-BRANCH="release-8.0.30-22"
-RPM_RELEASE=1
-DEB_RELEASE=1
+BRANCH="release-8.0.35-25_1"
+RPM_RELEASE=2
+DEB_RELEASE=2
 MECAB_INSTALL_DIR="${WORKDIR}/mecab-install"
 REPO="https://github.com/percona/percona-server.git"
 PRODUCT=Percona-Server-8.0
 MYSQL_VERSION_MAJOR=8
 MYSQL_VERSION_MINOR=0
-MYSQL_VERSION_PATCH=30
-MYSQL_VERSION_EXTRA=-22
-PRODUCT_FULL=Percona-Server-8.0.30
+MYSQL_VERSION_PATCH=35
+MYSQL_VERSION_EXTRA=-27
+PRODUCT_FULL=Percona-Server-8.0.35
 BOOST_PACKAGE_NAME=boost_1_77_0
 BUILD_TOKUDB_TOKUBACKUP=0
-PERCONAFT_BRANCH=Percona-Server-8.0.30-22
-TOKUBACKUP_BRANCH=Percona-Server-8.0.30-22
+PERCONAFT_BRANCH=Percona-Server-8.0.35-27
+TOKUBACKUP_BRANCH=Percona-Server-8.0.35-25
 parse_arguments PICK-ARGS-FROM-ARGV "$@"
 
 check_workdir
